@@ -57,7 +57,7 @@ public class Combat {
             if (damage < 0) {
                 damage = 0;
             }
-            if (defender.getHp() > damage) {
+            if (defender.getHp() < damage) {
                 damage = defender.getHp();
             }
 
