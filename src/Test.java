@@ -29,7 +29,7 @@ public class Test {
                 for (int i = 2; i < firstlist.length; i +=1) {
                     list[i-2] = Integer.parseInt(firstlist[i]);
                 }
-                players.put(firstlist[0], new Player(firstlist[0], firstlist[1], list[0], list[1], list[2], list[3], list[4], list[5], list[6], list[7], list[8], list[9], list[10], list[11], list[12], null));
+                //players.put(firstlist[0], new Player(firstlist[0], firstlist[1], list[0], list[1], list[2], list[3], list[4], list[5], list[6], list[7], list[8], list[9], list[10], list[11], list[12], null));
             }
 
             // Always close files.

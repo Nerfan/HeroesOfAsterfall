@@ -6,7 +6,9 @@ package Units;
 public class Enemy extends Unit {
     protected String attackType;
 
-    public Enemy(String name, int maxhp, int hp, int move, int str, int mag, int skill, int spd, int defense, int res, int mastery, String attackType) {
+    public Enemy(String name,
+                 int maxhp, int hp, int move, int str, int mag, int skill, int spd, int defense, int res, int mastery,
+                 String attackType) {
         super(name, maxhp, hp, move, str, mag, skill, spd, defense, res, mastery);
         this.attackType = attackType;
     }

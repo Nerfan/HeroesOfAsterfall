@@ -22,6 +22,16 @@ public class Weapon {
         this.cost = cost;
     }
 
+    public Weapon(Weapon source) {
+        this.cost = source.cost;
+        this.durability = source.durability;
+        this.hit = source.hit;
+        this.mag = source.mag;
+        this.str = source.str;
+        this.name = source.name;
+        this.type = source.type;
+    }
+
     public int getCost() {
         return cost;
     }
@@ -31,7 +41,7 @@ public class Weapon {
     }
 
     public String getType() {
-        if (this.type.equals("tome")) {
+        if (this.type.equals("Tome")) {
             return "mag";
         } else if (this.name.equals("Steel Staff")) {
             return "phys";
@@ -58,16 +68,17 @@ public class Weapon {
         return durability;
     }
 
+    public void setDurability(int durability) {
+        this.durability = durability;
+    }
+
     @Override
     public String toString() {
-        return "Weapon{" +
-                "name='" + name + '\'' +
-                ", type='" + type + '\'' +
+        return name +
                 ", str=" + str +
                 ", mag=" + mag +
                 ", hit=" + hit +
                 ", durability=" + durability +
-                ", cost=" + cost +
-                '}';
+                ", cost=" + cost;
     }
 }
