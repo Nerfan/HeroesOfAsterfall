@@ -71,7 +71,6 @@ public class Combat {
                 System.out.println(attacker.getName() + " gained 1 xp!");
             }
 
-
             // If the defender dies
             if (defender.getHp() == 0) {
                 System.out.println(defender.getName() + " has been killed!");

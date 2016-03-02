@@ -44,6 +44,8 @@ public abstract class Unit {
 
     public abstract String getAttackType();
 
+    public abstract boolean hasDurability();
+
     public String getName() {
         return name;
     }
@@ -86,5 +88,49 @@ public abstract class Unit {
 
     public int getMastery() {
         return mastery;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setMaxhp(int maxhp) {
+        this.maxhp = maxhp;
+    }
+
+    public void setHp(int hp) {
+        this.hp = hp;
+    }
+
+    public void setMove(int move) {
+        this.move = move;
+    }
+
+    public void setStr(int str) {
+        this.str = str;
+    }
+
+    public void setMag(int mag) {
+        this.mag = mag;
+    }
+
+    public void setSkill(int skill) {
+        this.skill = skill;
+    }
+
+    public void setSpd(int spd) {
+        this.spd = spd;
+    }
+
+    public void setDefense(int defense) {
+        this.defense = defense;
+    }
+
+    public void setRes(int res) {
+        this.res = res;
+    }
+
+    public void setMastery(int mastery) {
+        this.mastery = mastery;
     }
 }

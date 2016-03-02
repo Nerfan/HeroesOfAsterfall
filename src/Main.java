@@ -1,3 +1,5 @@
+import Mechanics.LevelUp;
+import Units.Enemy;
 import Units.Player;
 import Mechanics.Combat;
 import Units.Weapon;
@@ -13,11 +15,12 @@ import java.util.TreeMap;
 public class Main {
     public static void main(String [] args) {
 
-        // This will reference one line at a time
+        // This will reference one line at a time, used for all file reading
         String line;
 
         try {
 
+/////////////////////////////////////////////// WEAPON STUFF //////////////////////////////////////////////////////////
             // Initialize weapon list
             FileReader fileReader =
                     new FileReader("src/weapons.txt");
@@ -44,7 +47,42 @@ public class Main {
                 );
             } // End weapon list loop
             bufferedReader.close();
+/////////////////////////////////////////////// WEAPON STUFF //////////////////////////////////////////////////////////
 
+
+
+/////////////////////////////////////////////// ENEMY  STUFF //////////////////////////////////////////////////////////
+            fileReader =
+                    new FileReader("src/level1.txt");
+            bufferedReader =
+                    new BufferedReader(fileReader);
+            TreeMap<String, Enemy> enemies = new TreeMap<>();
+
+            while ((line = bufferedReader.readLine()) != null) {    // Loops through enemy list
+                String[] list = line.split("\\s+");
+                int[] statList = new int[9];
+                for (int i = 1; i < 10; i += 1) {
+                    statList[i-1] = Integer.parseInt(list[i]);
+                }
+                enemies.put(list[0],
+                        new Enemy(list[0],
+                                statList[0],
+                                statList[0],
+                                statList[1],
+                                statList[2],
+                                statList[3],
+                                statList[4],
+                                statList[5],
+                                statList[6],
+                                statList[7],
+                                statList[8],
+                                list[10]));
+            }
+/////////////////////////////////////////////// ENEMY  STUFF //////////////////////////////////////////////////////////
+
+
+
+/////////////////////////////////////////////// PLAYER STUFF //////////////////////////////////////////////////////////
             // Initialize player list
             fileReader =
                     new FileReader("src/players.txt");
@@ -52,7 +90,7 @@ public class Main {
                     new BufferedReader(fileReader);
             TreeMap<String, Player> players = new TreeMap<>();
 
-            while((line = bufferedReader.readLine()) != null) { // Loops through player list
+            while((line = bufferedReader.readLine()) != null) {     // Loops through player list
                 String[] firstlist = line.split("\\s+");
                 Integer[] list = new Integer[13];
                 for (int i = 2; i < 15; i +=1) {
@@ -88,14 +126,13 @@ public class Main {
             } // End player list loop
             bufferedReader.close();
 
+            // Initializes level up stuff
+            LevelUp.init();
+/////////////////////////////////////////////// PLAYER STUFF //////////////////////////////////////////////////////////
+
 
             System.out.println(players.get("nerfan"));
-            System.out.println(players.get("ghost"));
-
-            Combat.combat(players.get("nerfan"), players.get("ghost"));
-
-            System.out.println(players.get("nerfan"));
-            System.out.println(players.get("ghost"));
+            LevelUp.levelUp(players.get("nerfan"));
 
 
         } // END ACTUAL CODE

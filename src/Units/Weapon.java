@@ -22,6 +22,10 @@ public class Weapon {
         this.cost = cost;
     }
 
+    /**
+     * Copy constructor
+     * @param source    Weapon to make a copy of
+     */
     public Weapon(Weapon source) {
         this.cost = source.cost;
         this.durability = source.durability;
@@ -40,8 +44,14 @@ public class Weapon {
         return name;
     }
 
+    /**
+     * Tells what type of attack the weapon uses
+     * @return  phys, mag, or heal
+     */
     public String getType() {
-        if (this.type.equals("Tome")) {
+        if (this.name.equals("Water Tome")) {
+            return "heal";
+        } else if (this.type.equals("Tome")) {
             return "mag";
         } else if (this.name.equals("Steel Staff")) {
             return "phys";

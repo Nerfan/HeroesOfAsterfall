@@ -37,4 +37,9 @@ public class Enemy extends Unit {
     public String getAttackType() {
         return attackType;
     }
+
+    @Override
+    public boolean hasDurability() {
+        return true;
+    }
 }

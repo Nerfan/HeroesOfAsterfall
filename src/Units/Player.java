@@ -48,12 +48,21 @@ public class Player extends Unit {
         return (2*this.spd);
     }
 
+    public String getRole() {
+        return role;
+    }
+
     public Weapon getEquipped() {
         return equipped;
     }
 
     public String getAttackType() {
         return this.equipped.getType();
+    }
+
+    @Override
+    public boolean hasDurability() {
+        return (this.equipped.durability > 0);
     }
 
     public int getXp() {
