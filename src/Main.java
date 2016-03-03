@@ -66,6 +66,10 @@ public class Main {
                     }
                     break;
 
+                case ("save"):
+                    save();
+                    break;
+
                 case ("quit"):
                     return;
             }
@@ -81,7 +85,8 @@ public class Main {
                             String weaponName = weapon.nextLine();
                             players.get(cmd).switchWeapon(weaponName);
                             break;
-                        case (""):
+                        case ("-i"):
+                            System.out.println(players.get(cmd).inventoryToString());
                             break;
                     }
                 }
@@ -230,6 +235,34 @@ public class Main {
         }
         catch(Exception ex) {
             System.out.println("Something nonspecific went wrong.");
+        }
+    }
+
+    /**
+     * Saves player data to the players.txt file
+     */
+    public static void save() {
+        try {
+            FileWriter saver = new FileWriter(playersFile);
+            for (Map.Entry<String, Player> entry : players.entrySet()) {
+                Player player = entry.getValue();
+                saver.write(player.getName() + "\t" + player.getRole() + "\t" + player.getLevel() + "\t" +
+                        player.getXp() + "\t" + player.getMaxhp() + "\t" + player.getHp() + "\t" + player.getMove() + "\t" +
+                        player.getStr() + "\t" + player.getMag() + "\t" + player.getSkill() + "\t" +
+                        player.getSpd() + "\t" + player.getDefense() + "\t" + player.getRes() + "\t" +
+                        player.getMastery() +  "\t" + player.getGold() + "\t" +
+                        player.getEquipped().getName() + "\t");
+                for (Map.Entry<String, Weapon> weaponentry : player.getInventory().entrySet()) {
+                    Weapon weapon = weaponentry.getValue();
+                    saver.write(weapon.getName() + " " + weapon.getDurability() + " ");
+                }
+                saver.write(System.lineSeparator());
+            }
+            saver.close();
+            System.out.println("Player data saved to " + playersFile);
+        }
+        catch(Exception ex) {
+            System.out.println("Unable to save.");
         }
     }
 }

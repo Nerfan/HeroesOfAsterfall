@@ -52,6 +52,18 @@ public class Player extends Unit {
         return role;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
+    public int getGold() {
+        return gold;
+    }
+
+    public HashMap<String, Weapon> getInventory() {
+        return inventory;
+    }
+
     @Override
     public boolean hasDurability() {
         return (this.equipped.durability > 0);
@@ -89,16 +101,20 @@ public class Player extends Unit {
 
     @Override
     public String toString() {
-        String printInv = "";
-        for (Map.Entry weapon : inventory.entrySet()) {
-            printInv += "\n\t\t" + weapon.getValue();
-        }
+
         return this.name +
                 "(" + this.hp + "/" + this.maxhp + " hp): Level " + this.level + " " + this.role +
                 " (" + this.xp +  " xp)" +
                 "\n\tstr: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense + ", res: " + this. res +
                     ", skill: " + this.skill + ", speed: " + this.spd + ", mastery: " + this.mastery +
-                "\n\tEquipped:\n\t\t" + this.equipped.name + "(" + this.equipped.durability + ")" +
-                "\n\tInventory:" + printInv;
+                "\n\tEquipped: " + this.equipped.name + "(" + this.equipped.durability + ")";
+    }
+
+    public String inventoryToString() {
+        String printInv = "";
+        for (Map.Entry weapon : inventory.entrySet()) {
+            printInv += "\n\t\t" + weapon.getValue();
+        }
+        return ("\tInventory:" + printInv);
     }
 }
