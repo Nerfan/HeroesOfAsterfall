@@ -15,10 +15,14 @@ public class Heal {
         }
         int heal = healer.getMag();
         recipient.setHp(recipient.getHp() + heal);
-        System.out.println(recipient.getName() + " was healed for " + heal + " by " + healer.getName());
+        if (recipient.getHp() > recipient.getMaxhp()) {
+            recipient.setHp(recipient.getMaxhp());
+        }
+        System.out.println(recipient.getName() + " was healed for " + heal + " hp by " + healer.getName() + "!");
+        System.out.println("\t" + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp");
         if (healer instanceof Player) {
             ((Player) healer).setXp(((Player) healer).getXp() + 1);
-            System.out.println(healer.getName() + " gained 1 xp.");
+            System.out.println(healer.getName() + " gained 1 xp!");
         }
     }
 }
