@@ -40,4 +40,14 @@ public class Enemy extends Unit {
     public boolean hasDurability() {
         return true;
     }
+
+    @Override
+    public String toString() {
+
+        return this.name +
+                "(" + this.hp + "/" + this.maxhp + " hp)" +
+                "\n\tstr: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense + ", res: " + this. res +
+                ", skill: " + this.skill + ", speed: " + this.spd + ", mastery: " + this.mastery +
+                "\n\tEquipped: " + this.equipped.name;
+    }
 }
