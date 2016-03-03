@@ -36,7 +36,8 @@ public class Main {
         while (true) {
             Scanner console = new Scanner(System.in);
             System.out.printf("Enter command: ");
-            String cmd = console.next();
+            String[] line = console.nextLine().split("\\s+");
+            String cmd = line[0];
 
             // Handles simple commands
             switch (cmd) {
@@ -69,9 +70,21 @@ public class Main {
                     return;
             }
 
-            // Handles if the command is a player or enemy name
-            if (units.containsKey(cmd)) {
-                System.out.println(units.get(cmd));
+            // Handles if the command is a player
+            if (players.containsKey(cmd)) {
+                System.out.println(players.get(cmd));
+                if (line.length != 1) {
+                    switch (line[1]) {
+                        case ("-s"):
+                            System.out.print("What weapon would you like to switch to? ");
+                            Scanner weapon = new Scanner(System.in);
+                            String weaponName = weapon.nextLine();
+                            players.get(cmd).switchWeapon(weaponName);
+                            break;
+                        case (""):
+                            break;
+                    }
+                }
             }
 
             System.out.println();

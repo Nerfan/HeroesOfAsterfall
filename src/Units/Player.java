@@ -71,11 +71,20 @@ public class Player extends Unit {
 
     public void increaseXP(int xp) {
         this.xp += 1;
-        System.out.println(this.name + " gained " + xp + " xp!");
+        System.out.println(this.name + " gained " + xp + " xp! ");
         if (this.xp >= 10) {
             this.xp -= 10;
             LevelUp.levelUp(this);
         }
+    }
+
+    public void switchWeapon(String weapon) {
+        if (!this.inventory.containsKey(weapon)) {
+            System.out.println("Error: Weapon not in inventory.");
+            return;
+        }
+        this.equipped = this.inventory.get(weapon);
+        System.out.println(this.name + " now has " + this.equipped.name + " equipped.");
     }
 
     @Override
@@ -85,7 +94,8 @@ public class Player extends Unit {
             printInv += "\n\t\t" + weapon.getValue();
         }
         return this.name +
-                "(" + this.hp + "/" + this.maxhp + " hp): Level " + this.level + " " + this.role + " (" + this.xp +  " xp)" +
+                "(" + this.hp + "/" + this.maxhp + " hp): Level " + this.level + " " + this.role +
+                " (" + this.xp +  " xp)" +
                 "\n\tstr: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense + ", res: " + this. res +
                     ", skill: " + this.skill + ", speed: " + this.spd + ", mastery: " + this.mastery +
                 "\n\tEquipped:\n\t\t" + this.equipped.name + "(" + this.equipped.durability + ")" +

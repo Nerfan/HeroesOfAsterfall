@@ -9,17 +9,23 @@ import Units.Unit;
  */
 public class Heal {
     public static void heal(Unit healer, Unit recipient) {
-        if (!healer.getAttackType().equals("heal")) {
-            System.out.println("Error: healing item not equipped.");
-            return;
+        try {
+            if (!healer.getAttackType().equals("heal")) {
+                System.out.println("Error: Healing item not equipped.");
+                return;
+            }
+            int heal = healer.getMag();
+            recipient.setHp(recipient.getHp() + heal);
+            if (recipient.getHp() > recipient.getMaxhp()) {
+                recipient.setHp(recipient.getMaxhp());
+            }
+            System.out.print(recipient.getName() + " was healed for " + heal + " hp by " + healer.getName() + "!");
+            System.out.print("\t" + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp");
+            healer.increaseXP(1);
         }
-        int heal = healer.getMag();
-        recipient.setHp(recipient.getHp() + heal);
-        if (recipient.getHp() > recipient.getMaxhp()) {
-            recipient.setHp(recipient.getMaxhp());
+
+        catch(Exception ex) {
+            System.out.println("Error: " + ex);
         }
-        System.out.println(recipient.getName() + " was healed for " + heal + " hp by " + healer.getName() + "!");
-        System.out.println("\t" + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp");
-        healer.increaseXP(1);
     }
 }

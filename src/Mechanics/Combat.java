@@ -25,6 +25,9 @@ public class Combat {
             if (!defender.getAttackType().equals("heal") && defender.getHp() > 0) {
                 damage(defender, attacker);
             }
+
+            System.out.println(attacker.getName() + " has " + attacker.getHp() + " hp remaining.");
+            System.out.println(defender.getName() + " has " + defender.getHp() + " hp remaining.");
         }
 
         catch (Exception e) {
@@ -56,7 +59,7 @@ public class Combat {
             // Roll for crit
             if (roll < attacker.getMastery()) {
                 damage *= 3;
-                System.out.println("Critical hit!");
+                System.out.print("Critical hit! ");
             }
 
             // Make sure damage is not less than 0 or more than the remaining health of the defender
@@ -69,14 +72,14 @@ public class Combat {
 
             // Actually deal the damage
             defender.takeDamage(damage);
-            System.out.println(attacker.getName() + " dealt " + damage + " damage to " + defender.getName() + "!");
+            System.out.print(attacker.getName() + " dealt " + damage + " damage to " + defender.getName() + "! ");
 
             // Give players xp
             attacker.increaseXP(1);
 
             // If the defender dies
             if (defender.getHp() == 0) {
-                System.out.println(defender.getName() + " has been killed!");
+                System.out.print(defender.getName() + " has been killed! ");
                 attacker.increaseXP(2);
             }
         }
