@@ -49,7 +49,7 @@ public class Main {
                     break;
 
                 case ("heal"):
-                    System.out.printf("Heaer: ");
+                    System.out.printf("Healer: ");
                     String healer = console.next();
                     System.out.printf("Recipient: ");
                     String recipient = console.next();
