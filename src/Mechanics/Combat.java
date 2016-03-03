@@ -72,26 +72,12 @@ public class Combat {
             System.out.println(attacker.getName() + " dealt " + damage + " damage to " + defender.getName() + "!");
 
             // Give players xp
-            if (attacker instanceof Player) {
-                ((Player) attacker).setXp(((Player) attacker).getXp() + 1);
-                System.out.println(attacker.getName() + " gained 1 xp!");
-                if (((Player) attacker).getXp() >= 10) {
-                    ((Player) attacker).setXp(((Player) attacker).getXp()-10);
-                    LevelUp.levelUp(((Player) attacker));
-                }
-            }
+            attacker.increaseXP(1);
 
             // If the defender dies
             if (defender.getHp() == 0) {
                 System.out.println(defender.getName() + " has been killed!");
-                if (attacker instanceof Player) {
-                    ((Player) attacker).setXp(((Player) attacker).getXp() + 2);
-                    System.out.println(attacker.getName() + " gained an additional 2 xp!");
-                    if (((Player) attacker).getXp() >= 10) {
-                        ((Player) attacker).setXp(((Player) attacker).getXp()-10);
-                        LevelUp.levelUp(((Player) attacker));
-                    }
-                }
+                attacker.increaseXP(2);
             }
         }
     }

@@ -44,6 +44,8 @@ public abstract class Unit {
 
     public abstract int getDodge();
 
+    public abstract void increaseXP(int xp);
+
     public String getAttackType() {
         return this.equipped.getType();
     }

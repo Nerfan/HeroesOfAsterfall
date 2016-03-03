@@ -69,6 +69,15 @@ public class Player extends Unit {
         LevelUp.levelUp(this);
     }
 
+    public void increaseXP(int xp) {
+        this.xp += 1;
+        System.out.println(this.name + " gained " + xp + " xp!");
+        if (this.xp >= 10) {
+            this.xp -= 10;
+            LevelUp.levelUp(this);
+        }
+    }
+
     @Override
     public String toString() {
         String printInv = "";

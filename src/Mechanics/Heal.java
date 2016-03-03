@@ -20,9 +20,6 @@ public class Heal {
         }
         System.out.println(recipient.getName() + " was healed for " + heal + " hp by " + healer.getName() + "!");
         System.out.println("\t" + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp");
-        if (healer instanceof Player) {
-            ((Player) healer).setXp(((Player) healer).getXp() + 1);
-            System.out.println(healer.getName() + " gained 1 xp!");
-        }
+        healer.increaseXP(1);
     }
 }

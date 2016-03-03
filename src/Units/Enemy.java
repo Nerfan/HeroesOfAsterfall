@@ -32,6 +32,9 @@ public class Enemy extends Unit {
     }
 
     @Override
+    public void increaseXP(int xp) {}
+
+    @Override
     public boolean hasDurability() {
         return true;
     }
