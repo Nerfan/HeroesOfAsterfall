@@ -17,12 +17,18 @@ public class Combat {
      * @param defender  The unit defending
      */
     public static void combat(Unit attacker, Unit defender) {
-        if (attacker.getAttackType().equals("heal")) {
-            System.out.println("Error: Healing item equipped");
-        } else damage(attacker, defender);
+        try {
+            if (attacker.getAttackType().equals("heal")) {
+                System.out.println("Error: Healing item equipped");
+            } else damage(attacker, defender);
 
-        if (!defender.getAttackType().equals("heal") && defender.getHp() > 0) {
-            damage(defender, attacker);
+            if (!defender.getAttackType().equals("heal") && defender.getHp() > 0) {
+                damage(defender, attacker);
+            }
+        }
+
+        catch (Exception e) {
+            System.out.println("Error: " + e);
         }
     }
 
@@ -69,6 +75,10 @@ public class Combat {
             if (attacker instanceof Player) {
                 ((Player) attacker).setXp(((Player) attacker).getXp() + 1);
                 System.out.println(attacker.getName() + " gained 1 xp!");
+                if (((Player) attacker).getXp() >= 10) {
+                    ((Player) attacker).setXp(((Player) attacker).getXp()-10);
+                    LevelUp.levelUp(((Player) attacker));
+                }
             }
 
             // If the defender dies
@@ -77,6 +87,10 @@ public class Combat {
                 if (attacker instanceof Player) {
                     ((Player) attacker).setXp(((Player) attacker).getXp() + 2);
                     System.out.println(attacker.getName() + " gained an additional 2 xp!");
+                    if (((Player) attacker).getXp() >= 10) {
+                        ((Player) attacker).setXp(((Player) attacker).getXp()-10);
+                        LevelUp.levelUp(((Player) attacker));
+                    }
                 }
             }
         }

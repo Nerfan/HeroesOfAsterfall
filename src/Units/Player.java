@@ -1,10 +1,12 @@
 package Units;
 
+import Mechanics.LevelUp;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by jeremy on 2/15/16.
+ * Creates a class for objects that represent player characters
  */
 public class Player extends Unit {
     String role;
@@ -12,18 +14,16 @@ public class Player extends Unit {
     int xp;
     int gold;
     HashMap<String, Weapon> inventory;
-    Weapon equipped;
 
     public Player(String name, String role,
                   int level, int xp, int maxhp, int hp, int move, int str, int mag, int skill, int spd,
-                  int defense, int res, int mastery, int gold, HashMap inventory, Weapon equipped) {
-        super(name, maxhp, hp, move, str, mag, skill, spd, defense, res, mastery);
+                  int defense, int res, int mastery, int gold, HashMap<String, Weapon> inventory, Weapon equipped) {
+        super(name, maxhp, hp, move, str, mag, skill, spd, defense, res, mastery, equipped);
         this.role = role;
         this.level = level;
         this.xp = xp;
         this.gold = gold;
         this.inventory = inventory;
-        this.equipped = equipped;
     }
 
     @Override
@@ -52,14 +52,6 @@ public class Player extends Unit {
         return role;
     }
 
-    public Weapon getEquipped() {
-        return equipped;
-    }
-
-    public String getAttackType() {
-        return this.equipped.getType();
-    }
-
     @Override
     public boolean hasDurability() {
         return (this.equipped.durability > 0);
@@ -73,6 +65,10 @@ public class Player extends Unit {
         this.xp = xp;
     }
 
+    public void levelUp() {
+        LevelUp.levelUp(this);
+    }
+
     @Override
     public String toString() {
         String printInv = "";
@@ -82,9 +78,8 @@ public class Player extends Unit {
         return this.name +
                 "(" + this.hp + "/" + this.maxhp + " hp): Level " + this.level + " " + this.role + " (" + this.xp +  " xp)" +
                 "\n\tstr: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense + ", res: " + this. res +
+                    ", skill: " + this.skill + ", speed: " + this.spd + ", mastery: " + this.mastery +
                 "\n\tEquipped:\n\t\t" + this.equipped.name + "(" + this.equipped.durability + ")" +
                 "\n\tInventory:" + printInv;
     }
-
-
 }

@@ -1,7 +1,7 @@
 package Units;
 
 /**
- * Created by jeremy on 2/15/16.
+ * Gives the framework for player and enemy units. Acts as an abstract class for them to extend
  */
 public abstract class Unit {
     protected String name;  // Name of unit
@@ -15,8 +15,9 @@ public abstract class Unit {
     protected int defense;  // Decreases physical damage 1:1
     protected int res;      // Decreases magic damage 1:1
     protected int mastery;  // Percent chance to crit
+    protected Weapon equipped;
 
-    public Unit(String name, int maxhp, int hp, int move, int str, int mag, int skill, int spd, int defense, int res, int mastery) {
+    public Unit(String name, int maxhp, int hp, int move, int str, int mag, int skill, int spd, int defense, int res, int mastery, Weapon equipped) {
         this.name = name;
         this.maxhp = maxhp;
         this.hp = hp;
@@ -28,6 +29,7 @@ public abstract class Unit {
         this.defense = defense;
         this.res = res;
         this.mastery = mastery;
+        this.equipped = equipped;
     }
 
     public void takeDamage(int damage) {
@@ -42,7 +44,9 @@ public abstract class Unit {
 
     public abstract int getDodge();
 
-    public abstract String getAttackType();
+    public String getAttackType() {
+        return this.equipped.getType();
+    }
 
     public abstract boolean hasDurability();
 
@@ -90,6 +94,10 @@ public abstract class Unit {
         return mastery;
     }
 
+    public Weapon getEquipped() {
+        return equipped;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -132,5 +140,40 @@ public abstract class Unit {
 
     public void setMastery(int mastery) {
         this.mastery = mastery;
+    }
+
+    public void setEquipped(Weapon equipped) {
+        this.equipped = equipped;
+    }
+
+    @Override
+    public String toString() {
+        return "Unit{" +
+                "name='" + name + '\'' +
+                ", maxhp=" + maxhp +
+                ", hp=" + hp +
+                ", move=" + move +
+                ", str=" + str +
+                ", mag=" + mag +
+                ", skill=" + skill +
+                ", spd=" + spd +
+                ", defense=" + defense +
+                ", res=" + res +
+                ", mastery=" + mastery +
+                ", equipped=" + equipped +
+                '}';
+    }
+
+    public String allStats() {
+        return "maxhp=" + maxhp +
+                ", hp=" + hp +
+                ", move=" + move +
+                ", str=" + str +
+                ", mag=" + mag +
+                ", skill=" + skill +
+                ", spd=" + spd +
+                ", defense=" + defense +
+                ", res=" + res +
+                ", mastery=" + mastery;
     }
 }

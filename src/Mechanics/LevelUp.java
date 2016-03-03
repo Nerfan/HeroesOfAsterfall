@@ -6,10 +6,12 @@ import java.util.Random;
 import java.util.TreeMap;
 
 /**
- * Created by jeremy on 3/2/16.
+ * Simply creates class objects to hold probabilities of a stat increasing upon a leveling up.
+ * Each player class has their own LevelUp object created in the init() method.
+ * init() should be called by the main function during the initialization routine.
  */
 public class LevelUp {
-    private String name;
+    // These are all pretty self-explanatory. The exact number is the percent chance of an increase.
     private int hpChance;
     private int strChance;
     private int magChance;
@@ -18,12 +20,11 @@ public class LevelUp {
     private int defenseChance;
     private int resChance;
     private int masteryChance;
-
+    // Used to store stat increase chances
     private static TreeMap<String, LevelUp> levelUps = new TreeMap<>();
 
-    public LevelUp(String name, int hpChance, int strChance, int magChance, int skillChance, int spdChance,
+    public LevelUp(int hpChance, int strChance, int magChance, int skillChance, int spdChance,
                    int defenseChance, int resChance, int masteryChance) {
-        this.name = name;
         this.hpChance = hpChance;
         this.strChance = strChance;
         this.magChance = magChance;
@@ -74,10 +75,10 @@ public class LevelUp {
     }
 
     public static void init() {
-        levelUps.put("Acolyte", new LevelUp("Acolyte", 50, 10, 80, 70, 50, 20, 70, 10));
-        levelUps.put("Adept", new LevelUp("Adept", 60, 50, 50, 70, 70, 30, 30, 15));
-        levelUps.put("Nomad", new LevelUp("Nomad", 65, 60, 20, 75, 75, 40, 25, 10));
-        levelUps.put("Hunter", new LevelUp("Hunter", 50, 60, 10, 80, 80, 30, 40, 15));
-        levelUps.put("Warrior", new LevelUp("Warrior", 70, 70, 30, 40, 45, 70, 30, 10));
+        levelUps.put("Acolyte", new LevelUp(50, 10, 80, 70, 50, 20, 70, 10));
+        levelUps.put("Adept", new LevelUp(60, 50, 50, 70, 70, 30, 30, 15));
+        levelUps.put("Nomad", new LevelUp(65, 60, 20, 75, 75, 40, 25, 10));
+        levelUps.put("Hunter", new LevelUp(50, 60, 10, 80, 80, 30, 40, 15));
+        levelUps.put("Warrior", new LevelUp(70, 70, 30, 40, 45, 70, 30, 10));
     }
 }

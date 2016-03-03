@@ -1,9 +1,9 @@
-Berserker1	28	5	10	0	40	1	0	0	0	No Axe
-Berserker2	28	5	10	0	40	1	0	0	0	No Axe
-Berserker3	28	5	10	0	40	1	0	0	0	No Axe
-Berserker4	28	5	10	0	40	1	0	0	0	No Axe
-Hunter1		27	5	8	0	70	3	0	0	0	No Bow
-Hunter2		27	5	8	0	70	3	0	0	0	No Bow
-Brute1		35	5	7	0	80	0	3	0	0	No Sword
-Brute2		35	5	7	0	80	0	3	0	0	No Sword
-Mage1		21	5	0	10	60	2	0	5	0	No Tome
+Berserker1	28	5	10	0	40	1	0	0	0	Axe
+Berserker2	28	5	10	0	40	1	0	0	0   Axe
+Berserker3	28	5	10	0	40	1	0	0	0	Axe
+Berserker4	28	5	10	0	40	1	0	0	0	Axe
+Hunter1		27	5	8	0	70	3	0	0	0	Bow
+Hunter2		27	5	8	0	70	3	0	0	0	Bow
+Brute1		35	5	7	0	80	0	3	0	0	Sword
+Brute2		35	5	7	0	80	0	3	0	0	Sword
+Mage1		21	5	0	10	60	2	0	5	0	Tome

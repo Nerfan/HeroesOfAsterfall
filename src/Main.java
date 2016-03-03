@@ -1,19 +1,89 @@
+import Mechanics.Heal;
 import Mechanics.LevelUp;
 import Units.Enemy;
 import Units.Player;
 import Mechanics.Combat;
+import Units.Unit;
 import Units.Weapon;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.TreeMap;
 
 /**
- * Created by jeremy on 2/22/16.
+ * Lots of testing and will eventually run the game program
  */
 public class Main {
-    public static void main(String [] args) {
+
+    private static final String weaponsFile = "src/weapons.txt";
+    private static final String enemiesFile = "src/level1.txt";
+    private static final String playersFile = "src/players.txt";
+    private static TreeMap<String, Enemy> enemies = new TreeMap<>();
+    private static TreeMap<String, Player> players = new TreeMap<>();
+    private static TreeMap<String, Unit> units = new TreeMap<>();
+
+    /**
+     * The big guy.
+     * Calls init() to begin with
+     * Loops through and asks the user for commands
+     * Does stuff based on those commands
+     */
+    public static void main(String[] args) {
+        init();
+
+        while (true) {
+            Scanner console = new Scanner(System.in);
+            System.out.printf("Enter command: ");
+            String cmd = console.next();
+
+            // Handles simple commands
+            switch (cmd) {
+                case ("attack"):
+                    System.out.printf("Attacker: ");
+                    String attacker = console.next();
+                    System.out.printf("Defender: ");
+                    String defender = console.next();
+                    Combat.combat(units.get(attacker), units.get(defender));
+                    break;
+
+                case ("heal"):
+                    System.out.printf("Heaer: ");
+                    String healer = console.next();
+                    System.out.printf("Recipient: ");
+                    String recipient = console.next();
+                    Heal.heal(units.get(healer), units.get(recipient));
+                    break;
+
+                case ("players"):
+                    System.out.println("==================== ALL PLAYERS ====================");
+                    for (Map.Entry<String, Player> entry : players.entrySet()) {
+                        Player player = entry.getValue();
+                        System.out.printf("%-30s", player.getName());
+                        System.out.println("(" + player.getHp() + "/" + player.getMaxhp() + " hp)");
+                    }
+                    break;
+
+                case ("quit"):
+                    return;
+            }
+
+            // Handles if the command is a player or enemy name
+            if (units.containsKey(cmd)) {
+                System.out.println(units.get(cmd));
+            }
+
+            System.out.println();
+        } // Ends the while loop
+    }
+
+    /**
+     * Does everything needed to start the game.
+     * Populates HashMaps with players, enemies, weapons, etc.
+     * Pulls that data from files specified in the Main class
+     */
+    public static void init() {
 
         // This will reference one line at a time, used for all file reading
         String line;
@@ -23,7 +93,7 @@ public class Main {
 /////////////////////////////////////////////// WEAPON STUFF //////////////////////////////////////////////////////////
             // Initialize weapon list
             FileReader fileReader =
-                    new FileReader("src/weapons.txt");
+                    new FileReader(weaponsFile);
             BufferedReader bufferedReader =
                     new BufferedReader(fileReader);
             TreeMap<String, Weapon> weapons = new TreeMap<>();
@@ -47,16 +117,14 @@ public class Main {
                 );
             } // End weapon list loop
             bufferedReader.close();
-/////////////////////////////////////////////// WEAPON STUFF //////////////////////////////////////////////////////////
 
 
 
 /////////////////////////////////////////////// ENEMY  STUFF //////////////////////////////////////////////////////////
             fileReader =
-                    new FileReader("src/level1.txt");
+                    new FileReader(enemiesFile);
             bufferedReader =
                     new BufferedReader(fileReader);
-            TreeMap<String, Enemy> enemies = new TreeMap<>();
 
             while ((line = bufferedReader.readLine()) != null) {    // Loops through enemy list
                 String[] list = line.split("\\s+");
@@ -64,7 +132,7 @@ public class Main {
                 for (int i = 1; i < 10; i += 1) {
                     statList[i-1] = Integer.parseInt(list[i]);
                 }
-                enemies.put(list[0],
+                enemies.put(list[0].toLowerCase(),
                         new Enemy(list[0],
                                 statList[0],
                                 statList[0],
@@ -76,19 +144,18 @@ public class Main {
                                 statList[6],
                                 statList[7],
                                 statList[8],
-                                list[10]));
+                                new Weapon(list[10],
+                                        list[10], 0, 0, 0, 0, 0)));
             }
-/////////////////////////////////////////////// ENEMY  STUFF //////////////////////////////////////////////////////////
 
 
 
 /////////////////////////////////////////////// PLAYER STUFF //////////////////////////////////////////////////////////
             // Initialize player list
             fileReader =
-                    new FileReader("src/players.txt");
+                    new FileReader(playersFile);
             bufferedReader =
                     new BufferedReader(fileReader);
-            TreeMap<String, Player> players = new TreeMap<>();
 
             while((line = bufferedReader.readLine()) != null) {     // Loops through player list
                 String[] firstlist = line.split("\\s+");
@@ -128,25 +195,28 @@ public class Main {
 
             // Initializes level up stuff
             LevelUp.init();
-/////////////////////////////////////////////// PLAYER STUFF //////////////////////////////////////////////////////////
 
-
-            System.out.println(players.get("nerfan"));
-            LevelUp.levelUp(players.get("nerfan"));
-
-
-        } // END ACTUAL CODE
+            // Copies enemy and player TreeMaps into a general units TreeMap
+            // Uses shallow copies so all changes happen to both copies of the unit
+            for (Map.Entry<String, Player> entry : players.entrySet()) {
+                units.put(entry.getKey(), entry.getValue());
+            }
+            for (Map.Entry<String, Enemy> entry : enemies.entrySet()) {
+                units.put(entry.getKey(), entry.getValue());
+            }
+        }
 
 
         catch(FileNotFoundException ex) {
             System.out.println(
-                    "Unable to open file '");
+                    "Unable to open file.");
         }
         catch(IOException ex) {
             System.out.println(
-                    "Error reading file '");
-            // Or we could just do this:
-            // ex.printStackTrace();
+                    "Error reading file.");
+        }
+        catch(Exception ex) {
+            System.out.println("Something nonspecific went wrong.");
         }
     }
 }

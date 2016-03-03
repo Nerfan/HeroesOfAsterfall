@@ -1,7 +1,7 @@
 package Units;
 
 /**
- * Created by jeremy on 2/16/16.
+ * Class to create objects to represent weapons
  */
 public class Weapon {
     protected String type;
