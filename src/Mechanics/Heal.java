@@ -12,6 +12,15 @@ public class Heal {
             if (!healer.getAttackType().equals("heal")) {
                 System.out.println("Error: Healing item not equipped.");
                 return;
+            } else if (healer.getHp() <= 0) {
+                System.out.println("Error: Healer is dead.");
+                return;
+            } else if (recipient.getHp() <= 0) {
+                System.out.println("Error: Recipient is dead.");
+                return;
+            } else if (!healer.hasDurability()) {
+                System.out.println("Error: No durability remaining.");
+                return;
             }
             int heal = healer.getMag();
             recipient.setHp(recipient.getHp() + heal);

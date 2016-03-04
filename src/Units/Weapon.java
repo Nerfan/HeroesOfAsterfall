@@ -1,5 +1,7 @@
 package Units;
 
+import java.util.Objects;
+
 /**
  * Class to create objects to represent weapons
  */
@@ -59,6 +61,22 @@ public class Weapon {
             return "heal";
         } else {
             return "phys";
+        }
+    }
+
+    /**
+     * Tells whether or not a weapon is in range to attack
+     * Assumes the weapon is an attacking weapon
+     * @param distance  Distance of attack
+     * @return  true if in range, false if not
+     */
+    public boolean inRange(int distance) {
+        if (distance == 1) {
+            return (!this.type.equals("Bow"));
+        } else if (distance == 2) {
+            return (this.type.equals("Bow") || this.type.equals("Tome"));
+        } else {
+            return false;
         }
     }
 

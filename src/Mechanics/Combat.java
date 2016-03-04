@@ -15,7 +15,7 @@ public class Combat {
      * @param attacker  The unit attacking
      * @param defender  The unit defending
      */
-    public static void combat(Unit attacker, Unit defender) {
+    public static void combat(Unit attacker, Unit defender, int distance) {
         try { // Make sure things don't crash
             if (attacker.getAttackType().equals("heal")) { // Check for healing item
                 System.out.println("Error: Healing item equipped");
@@ -26,10 +26,15 @@ public class Combat {
             } else if (defender.getHp() <= 0) { // Make sure the defender is alive
                 System.out.println(defender.getName() + " is dead!");
                 return;
+            } else if (!attacker.inRange(distance)) {
+                System.out.println("Out of range!");
+                return;
             }
 
             damage(attacker, defender);
-            if (!defender.getAttackType().equals("heal") && defender.getHp() > 0) {
+            if (defender.getAttackType().equals("heal") || defender.getHp() <= 0 || !defender.inRange(distance)) {
+                System.out.println("No retaliation from " + defender.getName() + "!");
+            } else {
                 damage(defender, attacker);
             }
 

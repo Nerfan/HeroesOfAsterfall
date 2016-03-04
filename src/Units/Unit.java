@@ -52,6 +52,10 @@ public abstract class Unit {
 
     public abstract boolean hasDurability();
 
+    public boolean inRange(int distance) {
+        return this.equipped.inRange(distance);
+    }
+
     public String getName() {
         return name;
     }
