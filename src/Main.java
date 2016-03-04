@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
+import java.util.function.IntBinaryOperator;
 
 /**
  * Lots of testing and will eventually run the game program
@@ -42,19 +43,39 @@ public class Main {
             // Handles simple commands
             switch (cmd) {
                 case ("attack"):    // Sets up combat
-                    System.out.printf("Attacker: ");
-                    String attacker = console.next();
-                    System.out.printf("Defender: ");
-                    String defender = console.next();
-                    Combat.combat(units.get(attacker), units.get(defender));
+                    String attacker;
+                    String defender;
+                    int distance;
+
+                    if (line.length == 4) {
+                        attacker = line[1];
+                        defender = line[2];
+                        distance = Integer.parseInt(line[3]);
+                    } else {
+                        System.out.printf("Attacker: ");
+                        attacker = console.next();
+                        System.out.printf("Defender: ");
+                        defender = console.next();
+                        System.out.printf("Distance: ");
+                        distance = console.nextInt();
+                    }
+                    Combat.combat(units.get(attacker.toLowerCase()), units.get(defender.toLowerCase()), distance);
                     break;
 
                 case ("heal"):      // Sets up healing
-                    System.out.printf("Healer: ");
-                    String healer = console.next();
-                    System.out.printf("Recipient: ");
-                    String recipient = console.next();
-                    Heal.heal(units.get(healer), units.get(recipient));
+                    String healer;
+                    String recipient;
+
+                    if (line.length == 3) {
+                        healer = line[1];
+                        recipient = line[2];
+                    } else {
+                        System.out.printf("Healer: ");
+                        healer = console.next();
+                        System.out.printf("Recipient: ");
+                        recipient = console.next();
+                    }
+                    Heal.heal(units.get(healer.toLowerCase()), units.get(recipient.toLowerCase()));
                     break;
 
                 case ("players"):   // Prints all players and their hp
@@ -78,6 +99,24 @@ public class Main {
                 case ("save"):      // Save players to a file
                     save();
                     break;
+
+                case ("healall"):
+                    for (Map.Entry<String, Player> entry : players.entrySet()) {
+                        Player player = entry.getValue();
+                        player.setHp(player.getMaxhp());
+                    }
+                    System.out.println("All players restored to full health.");
+                    break;
+
+                case ("help"):
+                    System.out.println("Commands:\n" +
+                            "attack\n" +
+                            "heal\n" +
+                            "players\n" +
+                            "enemies\n" +
+                            "save\n" +
+                            "healall\n" +
+                            "quit\n");
 
                 case ("quit"):
                     return;
