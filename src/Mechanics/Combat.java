@@ -1,8 +1,7 @@
 package Mechanics;
 
-import Units.Enemy;
-import Units.Player;
 import Units.Unit;
+
 import java.util.Random;
 
 /**
@@ -65,22 +64,19 @@ public class Combat {
             // Make sure damage is not less than 0 or more than the remaining health of the defender
             if (damage < 0) {
                 damage = 0;
-            }
-            if (defender.getHp() < damage) {
+            } else if (defender.getHp() < damage) {
                 damage = defender.getHp();
             }
 
             // Actually deal the damage
             defender.takeDamage(damage);
             System.out.print(attacker.getName() + " dealt " + damage + " damage to " + defender.getName() + "! ");
-
-            // Give players xp
-            attacker.increaseXP(1);
+            attacker.increaseXP(1); // Award xp
 
             // If the defender dies
             if (defender.getHp() == 0) {
                 System.out.print(defender.getName() + " has been killed! ");
-                attacker.increaseXP(2);
+                attacker.increaseXP(2); // Award xp
             }
         }
     }

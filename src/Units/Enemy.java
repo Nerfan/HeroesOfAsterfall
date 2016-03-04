@@ -43,7 +43,6 @@ public class Enemy extends Unit {
 
     @Override
     public String toString() {
-
         return this.name +
                 "(" + this.hp + "/" + this.maxhp + " hp)" +
                 "\n\tstr: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense + ", res: " + this. res +

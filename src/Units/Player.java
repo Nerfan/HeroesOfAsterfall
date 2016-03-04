@@ -56,6 +56,10 @@ public class Player extends Unit {
         return level;
     }
 
+    public int getXp() {
+        return xp;
+    }
+
     public int getGold() {
         return gold;
     }
@@ -69,18 +73,12 @@ public class Player extends Unit {
         return (this.equipped.durability > 0);
     }
 
-    public int getXp() {
-        return xp;
-    }
-
-    public void setXp(int xp) {
-        this.xp = xp;
-    }
-
-    public void levelUp() {
-        LevelUp.levelUp(this);
-    }
-
+    /**
+     * Increases xp by a set amount,
+     * prints a string saying that xp has gone up,
+     * and levels up the player if their xp goes above 10
+     * @param xp    amount of xp to add
+     */
     public void increaseXP(int xp) {
         this.xp += 1;
         System.out.println(this.name + " gained " + xp + " xp! ");
@@ -90,12 +88,16 @@ public class Player extends Unit {
         }
     }
 
-    public void switchWeapon(String weapon) {
-        if (!this.inventory.containsKey(weapon)) {
+    /**
+     * Switches player weapon to one in their inventory
+     * @param weaponName    String, key of weapon in inventory HashMap
+     */
+    public void switchWeapon(String weaponName) {
+        if (!this.inventory.containsKey(weaponName)) {
             System.out.println("Error: Weapon not in inventory.");
             return;
         }
-        this.equipped = this.inventory.get(weapon);
+        this.equipped = this.inventory.get(weaponName);
         System.out.println(this.name + " now has " + this.equipped.name + " equipped.");
     }
 

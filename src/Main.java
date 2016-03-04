@@ -1,8 +1,8 @@
+import Mechanics.Combat;
 import Mechanics.Heal;
 import Mechanics.LevelUp;
 import Units.Enemy;
 import Units.Player;
-import Mechanics.Combat;
 import Units.Unit;
 import Units.Weapon;
 
@@ -17,9 +17,9 @@ import java.util.TreeMap;
  */
 public class Main {
 
-    private static final String weaponsFile = "src/weapons.txt";
-    private static final String enemiesFile = "src/level1.txt";
-    private static final String playersFile = "src/players.txt";
+    private static final String weaponsFile = "data/weapons.txt";
+    private static final String enemiesFile = "data/level1.txt";
+    private static final String playersFile = "data/players.txt";
     private static TreeMap<String, Enemy> enemies = new TreeMap<>();
     private static TreeMap<String, Player> players = new TreeMap<>();
     private static TreeMap<String, Unit> units = new TreeMap<>();
@@ -37,11 +37,11 @@ public class Main {
             Scanner console = new Scanner(System.in);
             System.out.printf("Enter command: ");
             String[] line = console.nextLine().split("\\s+");
-            String cmd = line[0];
+            String cmd = line[0].toLowerCase();
 
             // Handles simple commands
             switch (cmd) {
-                case ("attack"):
+                case ("attack"):    // Sets up combat
                     System.out.printf("Attacker: ");
                     String attacker = console.next();
                     System.out.printf("Defender: ");
@@ -49,7 +49,7 @@ public class Main {
                     Combat.combat(units.get(attacker), units.get(defender));
                     break;
 
-                case ("heal"):
+                case ("heal"):      // Sets up healing
                     System.out.printf("Healer: ");
                     String healer = console.next();
                     System.out.printf("Recipient: ");
@@ -57,7 +57,7 @@ public class Main {
                     Heal.heal(units.get(healer), units.get(recipient));
                     break;
 
-                case ("players"):
+                case ("players"):   // Prints all players and their hp
                     System.out.println("==================== ALL PLAYERS ====================");
                     for (Map.Entry<String, Player> entry : players.entrySet()) {
                         Player player = entry.getValue();
@@ -66,7 +66,16 @@ public class Main {
                     }
                     break;
 
-                case ("save"):
+                case("enemies"):    // Prints all enemies and their hp
+                    System.out.println("==================== ALL ENEMIES ====================");
+                    for (Map.Entry<String, Enemy> entry : enemies.entrySet()) {
+                        Enemy enemy = entry.getValue();
+                        System.out.printf("%-30s", enemy.getName());
+                        System.out.println("(" + enemy.getHp() + "/" + enemy.getMaxhp() + " hp)");
+                    }
+                    break;
+
+                case ("save"):      // Save players to a file
                     save();
                     break;
 
@@ -90,6 +99,11 @@ public class Main {
                             break;
                     }
                 }
+            }
+
+            // Handles if the command is an enemy
+            if (enemies.containsKey(cmd)) {
+                System.out.println(enemies.get(cmd));
             }
 
             System.out.println();
@@ -151,17 +165,17 @@ public class Main {
                     statList[i-1] = Integer.parseInt(list[i]);
                 }
                 enemies.put(list[0].toLowerCase(),
-                        new Enemy(list[0],
-                                statList[0],
-                                statList[0],
-                                statList[1],
-                                statList[2],
-                                statList[3],
-                                statList[4],
-                                statList[5],
-                                statList[6],
-                                statList[7],
-                                statList[8],
+                        new Enemy(list[0],      // Name
+                                statList[0],    // Max HP
+                                statList[0],    // HP
+                                statList[1],    // Move
+                                statList[2],    // Str
+                                statList[3],    // Mag
+                                statList[4],    // Skill
+                                statList[5],    // Spd
+                                statList[6],    // Defense
+                                statList[7],    // Res
+                                statList[8],    // Mastery
                                 new Weapon(list[10],
                                         list[10], 0, 0, 0, 0, 0)));
             }

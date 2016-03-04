@@ -1,11 +1,8 @@
 import Units.Enemy;
-import Units.Player;
 import Units.Weapon;
 
-import java.io.*;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class Test {
     public static void main(String [] args) {
