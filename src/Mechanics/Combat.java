@@ -16,15 +16,19 @@ public class Combat {
      * @param defender  The unit defending
      */
     public static void combat(Unit attacker, Unit defender) {
-        try {
-            if (attacker.getAttackType().equals("heal")) {
+        try { // Make sure things don't crash
+            if (attacker.getAttackType().equals("heal")) { // Check for healing item
                 System.out.println("Error: Healing item equipped");
                 return;
-            } else if (!(attacker.getHp() > 0)) {
-                System.out.println("Attacker is dead!");
+            } else if (attacker.getHp() <= 0) { // Make sure the attacker is alive
+                System.out.println(attacker.getName() + " is dead!");
                 return;
-            } else damage(attacker, defender);
+            } else if (defender.getHp() <= 0) { // Make sure the defender is alive
+                System.out.println(defender.getName() + " is dead!");
+                return;
+            }
 
+            damage(attacker, defender);
             if (!defender.getAttackType().equals("heal") && defender.getHp() > 0) {
                 damage(defender, attacker);
             }
