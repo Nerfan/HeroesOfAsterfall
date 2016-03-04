@@ -19,6 +19,10 @@ public class Combat {
         try {
             if (attacker.getAttackType().equals("heal")) {
                 System.out.println("Error: Healing item equipped");
+                return;
+            } else if (!(attacker.getHp() > 0)) {
+                System.out.println("Attacker is dead!");
+                return;
             } else damage(attacker, defender);
 
             if (!defender.getAttackType().equals("heal") && defender.getHp() > 0) {
