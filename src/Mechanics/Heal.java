@@ -19,7 +19,7 @@ public class Heal {
                 recipient.setHp(recipient.getMaxhp());
             }
             System.out.print(recipient.getName() + " was healed for " + heal + " hp by " + healer.getName() + "!");
-            System.out.print("\t" + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp");
+            System.out.print("\t" + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp. ");
             healer.increaseXP(1);
         }
 
