@@ -55,7 +55,7 @@ public class LevelUp {
     public static void levelUp(Player player) {
         Random rng = new Random();
         LevelUp levelUpStats = levelUps.get(player.getRole());
-        String statsUpString = player.getName() + "leveled up! ";
+        String statsUpString = player.getName() + " leveled up! ";
         if (rng.nextInt(100) < levelUpStats.hpChance) {
             player.setHp(player.getHp() + 1);
             statsUpString += "Max HP up! ";
