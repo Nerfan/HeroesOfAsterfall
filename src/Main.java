@@ -43,14 +43,19 @@ public class Main {
             // Handles simple commands
             switch (cmd) {
                 case ("attack"):    // Sets up combat
-                    String attacker;
-                    String defender;
-                    int distance;
+                    String attacker = "";
+                    String defender = "";
+                    int distance = 1;
 
                     if (line.length == 4) {
-                        attacker = line[1];
-                        defender = line[2];
-                        distance = Integer.parseInt(line[3]);
+                        try {
+                            attacker = line[1];
+                            defender = line[2];
+                            distance = Integer.parseInt(line[3]);
+                        }
+                        catch (Exception ex) {
+                            System.out.println("Error: " + ex);
+                        }
                     } else {
                         System.out.printf("Attacker: ");
                         attacker = console.next();
