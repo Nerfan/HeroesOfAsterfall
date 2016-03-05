@@ -63,6 +63,7 @@ public class Player extends Unit {
         System.out.println(this.name + " gained " + xp + " xp! ");
         if (this.xp >= 10) {
             this.xp -= 10;
+            this.level += 1;
             LevelUp.levelUp(this);
         }
     }
