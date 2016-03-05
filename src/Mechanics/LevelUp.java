@@ -9,6 +9,7 @@ import java.util.TreeMap;
  * Simply creates class objects to hold probabilities of a stat increasing upon a leveling up.
  * Each player class has their own LevelUp object created in the init() method.
  * init() should be called by the main function during the initialization routine.
+ * @author Jeremy Lefurge
  */
 public class LevelUp {
     // These are all pretty self-explanatory. The exact number is the percent chance of an increase.
@@ -23,6 +24,18 @@ public class LevelUp {
     // Used to store stat increase chances
     private static TreeMap<String, LevelUp> levelUps = new TreeMap<>();
 
+    /**
+     * Constructor
+     * All of the parameters are percent chances for the stat to increase upon leveling up
+     * @param hpChance      Max hp
+     * @param strChance     Strength
+     * @param magChance     Magic
+     * @param skillChance   Skill
+     * @param spdChance     Speed
+     * @param defenseChance Defense
+     * @param resChance     Resistance
+     * @param masteryChance Mastery
+     */
     public LevelUp(int hpChance, int strChance, int magChance, int skillChance, int spdChance,
                    int defenseChance, int resChance, int masteryChance) {
         this.hpChance = hpChance;
@@ -35,6 +48,10 @@ public class LevelUp {
         this.masteryChance = masteryChance;
     }
 
+    /**
+     * Levels up a player, increasing their stats according to the percent chances
+     * @param player    Player object to level up
+     */
     public static void levelUp(Player player) {
         Random rng = new Random();
         LevelUp levelUpStats = levelUps.get(player.getRole());
@@ -74,6 +91,9 @@ public class LevelUp {
         System.out.println(statsUpString);
     }
 
+    /**
+     * Creates the LevelUp classes for each player role/class
+     */
     public static void init() {
         levelUps.put("Acolyte", new LevelUp(50, 10, 80, 70, 50, 20, 70, 10));
         levelUps.put("Adept", new LevelUp(60, 50, 50, 70, 70, 30, 30, 15));

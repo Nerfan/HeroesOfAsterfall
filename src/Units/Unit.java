@@ -2,6 +2,7 @@ package Units;
 
 /**
  * Gives the framework for player and enemy units. Acts as an abstract class for them to extend
+ * @author Jeremy Lefurge
  */
 public abstract class Unit {
     protected String name;  // Name of unit
@@ -17,6 +18,9 @@ public abstract class Unit {
     protected int mastery;  // Percent chance to crit
     protected Weapon equipped;
 
+    /**
+     * Constructor, all parameters are explained in subclasses
+     */
     public Unit(String name, int maxhp, int hp, int move, int str, int mag, int skill, int spd, int defense, int res, int mastery, Weapon equipped) {
         this.name = name;
         this.maxhp = maxhp;
@@ -36,25 +40,61 @@ public abstract class Unit {
         this.hp -= damage;
     }
 
+    /**
+     * Gets the amount of physical damage dealt by the unit
+     * @return  Integer representing the unit's physical damage
+     */
     public abstract int physDamage();
 
+    /**
+     * Gets the amount of magical damage dealt by the unit
+     * @return  Integer representing the unit's magical damage
+     */
     public abstract int magDamage();
 
+    /**
+     * Gets the accuracy of the unit
+     * @return  Integer representing the percent chance for the unit to hit
+     */
     public abstract int getAccuracy();
 
+    /**
+     * Gets the dodge chance of the unit
+     * @return  Integer representing the percent chance for the unit to dodge an attack
+     */
     public abstract int getDodge();
 
+    /**
+     * Increases the unit's xp. Does nothing for enemy units
+     * @param xp    Amount to raise xp by
+     */
     public abstract void increaseXP(int xp);
 
+    /**
+     * Returns type of weapon equipped
+     * @return  String: phys, mag, or heal
+     */
     public String getAttackType() {
         return this.equipped.getType();
     }
 
+    /**
+     * Checks if a unit's weapon has enough durability to attack
+     * @return  True if can attack, false if not
+     */
     public abstract boolean hasDurability();
 
+    /**
+     * Checks if a unit is in range to attack with their currently equipped weapon
+     * @param distance  Distance of attack
+     * @return  True if they can attack, false if they cannot
+     */
     public boolean inRange(int distance) {
         return this.equipped.inRange(distance);
     }
+
+
+    // Simple getters and setters
 
     public String getName() {
         return name;

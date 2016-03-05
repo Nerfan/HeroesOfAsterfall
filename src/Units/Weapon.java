@@ -4,6 +4,7 @@ import java.util.Objects;
 
 /**
  * Class to create objects to represent weapons
+ * @author Jeremy Lefurge
  */
 public class Weapon {
     protected String type;
@@ -14,6 +15,16 @@ public class Weapon {
     protected int durability;
     protected int cost;
 
+    /**
+     * Constructor
+     * @param type          Type of weapon (e.g. Sword, Tome)
+     * @param name          Name of weapon (e.g. Iron Sword, Fire Tome)
+     * @param str           Physical damage of weapon
+     * @param mag           Magical damage of weapon
+     * @param hit           Hit chance (in percent) of weapon
+     * @param durability    Durability of weapon
+     * @param cost          Cost to buy a new one
+     */
     public Weapon(String type, String name, int str, int mag, int hit, int durability, int cost) {
         this.type = type;
         this.name = name;

@@ -5,8 +5,15 @@ import Units.Unit;
 /**
  * Gives functionality for healing units
  * Very basic for now, but probably doesn't need to be too complex
+ * @author Jeremy Lefurge
  */
 public class Heal {
+
+    /**
+     * A healer heals a recipient for an amount depending on their magic and currently equipped weapon
+     * @param healer    Unit doing the healing
+     * @param recipient Unit being healed
+     */
     public static void heal(Unit healer, Unit recipient) {
         try {
             if (!healer.getAttackType().equals("heal")) {
@@ -23,6 +30,14 @@ public class Heal {
                 return;
             }
             int heal = healer.getMag();
+            switch(healer.getEquipped().getName()) {
+                case("Oak Staff"):
+                    heal += 10;
+                    break;
+                case("Trimord Staff"):
+                    heal += 20;
+                    break;
+            }
             recipient.setHp(recipient.getHp() + heal);
             if (recipient.getHp() > recipient.getMaxhp()) {
                 recipient.setHp(recipient.getMaxhp());

@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
-import java.util.function.IntBinaryOperator;
 
 /**
- * Lots of testing and will eventually run the game program
+ * Main file to run, initializes all data necessary to run the game and then runs a text-based ui.
+ * @author Jeremy Lefurge
  */
 public class Main {
 
@@ -177,7 +177,7 @@ public class Main {
                     }
                 }
                 weapons.put(firstlist[1].toLowerCase() + " " + firstlist[0].toLowerCase(),
-                        new Weapon(firstlist[0], // Type of weapon (e.g. Sword)
+                        new Weapon(firstlist[0],                   // Type of weapon (e.g. Sword)
                                 firstlist[1] + " " + firstlist[0], // Full name (e.g. Iron Sword)
                                 list[0],    // Strength
                                 list[1],    // Magic
@@ -215,7 +215,7 @@ public class Main {
                                 statList[6],    // Defense
                                 statList[7],    // Res
                                 statList[8],    // Mastery
-                                new Weapon(list[10],
+                                new Weapon(list[10],    // Equipped weapon; initializes all stats to 0
                                         list[10], 0, 0, 0, 0, 0)));
             }
 
@@ -258,6 +258,7 @@ public class Main {
                                 list[11],   // Mastery
                                 list[12],   // Gold
                                 inventory,  // Inventory (Created above)
+                                // Currently equipped weapon
                                 inventory.get(firstlist[15].toLowerCase() + " " + firstlist[16].toLowerCase())
                         )
                 );
@@ -269,6 +270,7 @@ public class Main {
 
             // Copies enemy and player TreeMaps into a general units TreeMap
             // Uses shallow copies so all changes happen to both copies of the unit
+            // Basically gives two ways to call each unit
             for (Map.Entry<String, Player> entry : players.entrySet()) {
                 units.put(entry.getKey(), entry.getValue());
             }

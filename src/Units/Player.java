@@ -7,6 +7,7 @@ import java.util.Map;
 
 /**
  * Creates a class for objects that represent player characters
+ * @author Jeremy Lefurge
  */
 public class Player extends Unit {
     String role;
@@ -15,6 +16,26 @@ public class Player extends Unit {
     int gold;
     HashMap<String, Weapon> inventory;
 
+    /**
+     * Constructor
+     * @param name      Name of unit (title case)
+     * @param role      Role of unit (e.g. Adept, Nomad, etc)
+     * @param level     Level of unit
+     * @param xp        Current xp progress of unit (10 xp to level up)
+     * @param maxhp     Max hp of unit
+     * @param hp        Current HP of unit (while constructing, will usually be equal to maxhp)
+     * @param move      Number of spaces the unit can move
+     * @param str       Strength (physical damage) of unit
+     * @param mag       Magic (Magic damage + healing) of unit
+     * @param skill     Skill (Hit chance) of unit
+     * @param spd       Speed (Dodge chance) of unit (Multiplied by 2 for dodge chance)
+     * @param defense   Defense of unit; each point reduces incoming physical damage by 1
+     * @param res       Resistance of unit; each point reduces incoming physical damage by 1
+     * @param mastery   Mastery is 1:1 with percent chance to crit
+     * @param gold      Amount of gold the unit is holding
+     * @param inventory All weapons the unit is currently holding
+     * @param equipped  Currently equipped weapon
+     */
     public Player(String name, String role,
                   int level, int xp, int maxhp, int hp, int move, int str, int mag, int skill, int spd,
                   int defense, int res, int mastery, int gold, HashMap<String, Weapon> inventory, Weapon equipped) {
@@ -25,6 +46,41 @@ public class Player extends Unit {
         this.gold = gold;
         this.inventory = inventory;
     }
+
+    @Override
+    public boolean hasDurability() {
+        return (this.equipped.durability > 0);
+    }
+
+    /**
+     * Increases xp by a set amount,
+     * prints a string saying that xp has gone up,
+     * and levels up the player if their xp goes above 10
+     * @param xp    amount of xp to add
+     */
+    public void increaseXP(int xp) {
+        this.xp += 1;
+        System.out.println(this.name + " gained " + xp + " xp! ");
+        if (this.xp >= 10) {
+            this.xp -= 10;
+            LevelUp.levelUp(this);
+        }
+    }
+
+    /**
+     * Switches player weapon to one in their inventory
+     * @param weaponName    String, key of weapon in inventory HashMap
+     */
+    public void switchWeapon(String weaponName) {
+        if (!this.inventory.containsKey(weaponName)) {
+            System.out.println("Error: Weapon not in inventory.");
+            return;
+        }
+        this.equipped = this.inventory.get(weaponName);
+        System.out.println(this.name + " now has " + this.equipped.name + " equipped.");
+    }
+
+    // Simple getters and setters
 
     @Override
     public int physDamage() {
@@ -66,39 +122,6 @@ public class Player extends Unit {
 
     public HashMap<String, Weapon> getInventory() {
         return inventory;
-    }
-
-    @Override
-    public boolean hasDurability() {
-        return (this.equipped.durability > 0);
-    }
-
-    /**
-     * Increases xp by a set amount,
-     * prints a string saying that xp has gone up,
-     * and levels up the player if their xp goes above 10
-     * @param xp    amount of xp to add
-     */
-    public void increaseXP(int xp) {
-        this.xp += 1;
-        System.out.println(this.name + " gained " + xp + " xp! ");
-        if (this.xp >= 10) {
-            this.xp -= 10;
-            LevelUp.levelUp(this);
-        }
-    }
-
-    /**
-     * Switches player weapon to one in their inventory
-     * @param weaponName    String, key of weapon in inventory HashMap
-     */
-    public void switchWeapon(String weaponName) {
-        if (!this.inventory.containsKey(weaponName)) {
-            System.out.println("Error: Weapon not in inventory.");
-            return;
-        }
-        this.equipped = this.inventory.get(weaponName);
-        System.out.println(this.name + " now has " + this.equipped.name + " equipped.");
     }
 
     @Override
