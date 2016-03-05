@@ -38,12 +38,12 @@ public class Heal {
                     heal += 20;
                     break;
             }
-            recipient.setHp(recipient.getHp() + heal);
-            if (recipient.getHp() > recipient.getMaxhp()) {
-                recipient.setHp(recipient.getMaxhp());
+            if (heal > (recipient.getMaxhp() - recipient.getHp())) {
+                heal = (recipient.getMaxhp() - recipient.getHp());
             }
+            recipient.setHp(recipient.getHp() + heal);
             System.out.print(recipient.getName() + " was healed for " + heal + " hp by " + healer.getName() + "!");
-            System.out.print("\t" + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp. ");
+            System.out.print(" " + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp. ");
             healer.increaseXP(1);
         }
 
