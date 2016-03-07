@@ -9,14 +9,16 @@ import Units.Weapon;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.TreeMap;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.text.Document;
 
 /**
- * Main file to run, initializes all data necessary to run the game and then runs a text-based ui.
- * @author Jeremy Lefurge
+ * Created by jeremy on 3/5/16.
  */
-public class Main {
+public class Main implements ActionListener {
 
     private static final String weaponsFile = "data/weapons.txt";
     private static final String enemiesFile = "data/level1.txt";
@@ -25,133 +27,217 @@ public class Main {
     private static TreeMap<String, Player> players = new TreeMap<>();
     private static TreeMap<String, Unit> units = new TreeMap<>();
 
+    // All variables that were made necessary by the GUI
+    private static JPanel textPanel, buttonPanel;
+    private static JButton playersButton, enemiesButton, attackButton, healButton, saveButton, oneButton, twoButton;
+    private static JTextArea output;
+    private static boolean waitingForUnit1 = false, waitingForUnit2 = false, waitingForRange = false;
+    private static Unit unit1 = null, unit2 = null;
+    private static int range;
+
+    public JPanel createContentPane() {
+        JPanel bottom = new JPanel();
+        bottom.setLayout(null);
+
+        textPanel = new JPanel();
+        textPanel.setLayout(null);
+        textPanel.setLocation(10, 0);
+        textPanel.setSize(600, 720);
+        bottom.add(textPanel);
+
+        output = new JTextArea("");
+        output.setLocation(0, 0);
+        output.setFont(new Font("monospaced", Font.PLAIN, 12));
+        output.setSize(600, 720);
+        output.setForeground(Color.black);
+        textPanel.add(output);
+
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(null);
+        buttonPanel.setLocation(700, 50);
+        buttonPanel.setSize(400, 670);
+        bottom.add(buttonPanel);
+
+        playersButton = new JButton("Players");
+        playersButton.setSize(120, 30);
+        playersButton.setLocation(0, 0);
+        playersButton.setHorizontalAlignment(0);
+        playersButton.addActionListener(this);
+        buttonPanel.add(playersButton);
+
+        int yPos = 50;
+        for (Map.Entry<String, Player> entry : players.entrySet()) {
+            JButton temp = new JButton(entry.getValue().getName());
+            temp.setSize(120, 30);
+            temp.setLocation(0, yPos);
+            temp.addActionListener(e -> {
+                if (waitingForUnit1) {
+                    unit1 = entry.getValue();
+                    waitingForUnit1 = false;
+                } else if (waitingForUnit2) {
+                    unit2 = entry.getValue();
+                    waitingForUnit2 = false;
+                } else {
+                    System.out.println(entry.getValue());
+                    System.out.println();
+                }
+            });
+            buttonPanel.add(temp);
+            yPos += 40;
+        }
+
+        enemiesButton = new JButton("Enemies");
+        enemiesButton.setSize(120, 30);
+        enemiesButton.setLocation(250, 0);
+        enemiesButton.setHorizontalAlignment(0);
+        enemiesButton.addActionListener(this);
+        buttonPanel.add(enemiesButton);
+
+        yPos = 50;
+        for (Map.Entry<String, Enemy> entry : enemies.entrySet()) {
+            JButton temp = new JButton(entry.getValue().getName());
+            temp.setSize(120, 30);
+            temp.setLocation(250, yPos);
+            temp.addActionListener(e -> {
+                if (waitingForUnit1) {
+                    unit1 = entry.getValue();
+                    waitingForUnit1 = false;
+                } else if (waitingForUnit2) {
+                    unit2 = entry.getValue();
+                    waitingForUnit2 = false;
+                } else {
+                    System.out.println(entry.getValue());
+                    System.out.println();
+                }
+            });
+            buttonPanel.add(temp);
+            yPos += 40;
+        }
+
+        attackButton = new JButton("Attack");
+        attackButton.setSize(120, 30);
+        attackButton.setLocation(0, 500);
+        attackButton.setHorizontalAlignment(0);
+        attackButton.addActionListener(this);
+        buttonPanel.add(attackButton);
+
+        oneButton = new JButton("1");
+        oneButton.setSize(60, 30);
+        oneButton.setLocation(0, 550);
+        oneButton.setHorizontalAlignment(0);
+        oneButton.addActionListener(this);
+        buttonPanel.add(oneButton);
+
+        twoButton = new JButton("2");
+        twoButton.setSize(60, 30);
+        twoButton.setLocation(60, 550);
+        twoButton.setHorizontalAlignment(0);
+        twoButton.addActionListener(this);
+        buttonPanel.add(twoButton);
+
+        healButton = new JButton("Heal");
+        healButton.setSize(120, 30);
+        healButton.setLocation(250, 500);
+        healButton.setHorizontalAlignment(0);
+        healButton.addActionListener(this);
+        buttonPanel.add(healButton);
+
+        saveButton = new JButton("Save");
+        saveButton.setSize(120, 30);
+        saveButton.setLocation(250, 550);
+        saveButton.addActionListener(this);
+        buttonPanel.add(saveButton);
+
+        bottom.setOpaque(true);
+
+        return bottom;
+    }
+
+
     /**
-     * The big guy.
-     * Calls init() to begin with
-     * Loops through and asks the user for commands
-     * Does stuff based on those commands
+     * Invoked when an action occurs.
+     *
+     * @param e
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == playersButton) {
+            System.out.println("==================== ALL PLAYERS ====================");
+            for (Map.Entry<String, Player> entry : players.entrySet()) {
+                Player player = entry.getValue();
+                System.out.printf("%-30s", player.getName());
+                System.out.println("(" + player.getHp() + "/" + player.getMaxhp() + " hp)");
+            }
+        } else if (e.getSource() == enemiesButton) {
+            System.out.println("==================== ALL ENEMIES ====================");
+            for (Map.Entry<String, Enemy> entry : enemies.entrySet()) {
+                Enemy enemy = entry.getValue();
+                System.out.printf("%-30s", enemy.getName());
+                System.out.println("(" + enemy.getHp() + "/" + enemy.getMaxhp() + " hp)");
+            }
+        } else if (e.getSource() == attackButton) {
+            if ((unit1 == null) && (unit2 == null) && !waitingForUnit1 && !waitingForUnit2) {
+                waitingForUnit1 = true;
+                waitingForUnit2 = true;
+                waitingForRange = true;
+                System.out.println("Waiting for attacker/defender/range...");
+            } else if (!((unit1 == null) || (unit2 == null)) && (range != 0)) {
+                Combat.combat(unit1, unit2, range);
+                unit1 = null;
+                unit2 = null;
+            } else if (waitingForUnit1 || waitingForUnit2 || waitingForRange){
+                unit1 = null;
+                unit2 = null;
+                range = 0;
+                waitingForUnit1 = false;
+                waitingForUnit2 = false;
+                waitingForRange = false;
+                System.out.println("Combat cancelled.");
+            }
+        } else if (e.getSource() == oneButton && waitingForRange) {
+            range = 1;
+            waitingForRange = false;
+        } else if (e.getSource() == twoButton && waitingForRange) {
+            range = 2;
+            waitingForRange = false;
+        } else if (e.getSource() == healButton) {
+            if ((unit1 == null) && (unit2 == null) && !waitingForUnit1 && !waitingForUnit2) {
+                waitingForUnit1 = true;
+                waitingForUnit2 = true;
+                System.out.println("Waiting for healer/recipient...");
+            } else if (!((unit1 == null) || (unit2 == null))) {
+                Heal.heal(unit1, unit2);
+                unit1 = null;
+                unit2 = null;
+            } else if (waitingForUnit1 || waitingForUnit2){
+                unit1 = null;
+                unit2 = null;
+                waitingForUnit1 = false;
+                waitingForUnit2 = false;
+                System.out.println("Healing cancelled.");
+            }
+        } else if (e.getSource() == saveButton) {
+            save();
+        }
+        System.out.println();
+    }
+
+    /**
+     * The main function.
+     * Calls init() to begin with.
+     * Constructs a GUI based on the rest of this file and does everything in there.
      */
     public static void main(String[] args) {
         init();
+        Main demo = new Main();
+        demo.redirectSystemStreams();
 
-        while (true) {
-            Scanner console = new Scanner(System.in);
-            System.out.printf("Enter command: ");
-            String[] line = console.nextLine().split("\\s+");
-            String cmd = line[0].toLowerCase();
-
-            // Handles simple commands
-            switch (cmd) {
-                case ("attack"):    // Sets up combat
-                    String attacker = "";
-                    String defender = "";
-                    int distance = 1;
-
-                    if (line.length == 4) {
-                        try {
-                            attacker = line[1];
-                            defender = line[2];
-                            distance = Integer.parseInt(line[3]);
-                        }
-                        catch (Exception ex) {
-                            System.out.println("Error: " + ex);
-                        }
-                    } else {
-                        System.out.printf("Attacker: ");
-                        attacker = console.next();
-                        System.out.printf("Defender: ");
-                        defender = console.next();
-                        System.out.printf("Distance: ");
-                        distance = console.nextInt();
-                    }
-                    Combat.combat(units.get(attacker.toLowerCase()), units.get(defender.toLowerCase()), distance);
-                    break;
-
-                case ("heal"):      // Sets up healing
-                    String healer;
-                    String recipient;
-
-                    if (line.length == 3) {
-                        healer = line[1];
-                        recipient = line[2];
-                    } else {
-                        System.out.printf("Healer: ");
-                        healer = console.next();
-                        System.out.printf("Recipient: ");
-                        recipient = console.next();
-                    }
-                    Heal.heal(units.get(healer.toLowerCase()), units.get(recipient.toLowerCase()));
-                    break;
-
-                case ("players"):   // Prints all players and their hp
-                    System.out.println("==================== ALL PLAYERS ====================");
-                    for (Map.Entry<String, Player> entry : players.entrySet()) {
-                        Player player = entry.getValue();
-                        System.out.printf("%-30s", player.getName());
-                        System.out.println("(" + player.getHp() + "/" + player.getMaxhp() + " hp)");
-                    }
-                    break;
-
-                case("enemies"):    // Prints all enemies and their hp
-                    System.out.println("==================== ALL ENEMIES ====================");
-                    for (Map.Entry<String, Enemy> entry : enemies.entrySet()) {
-                        Enemy enemy = entry.getValue();
-                        System.out.printf("%-30s", enemy.getName());
-                        System.out.println("(" + enemy.getHp() + "/" + enemy.getMaxhp() + " hp)");
-                    }
-                    break;
-
-                case ("save"):      // Save players to a file
-                    save();
-                    break;
-
-                case ("healall"):
-                    for (Map.Entry<String, Player> entry : players.entrySet()) {
-                        Player player = entry.getValue();
-                        player.setHp(player.getMaxhp());
-                    }
-                    System.out.println("All players restored to full health.");
-                    break;
-
-                case ("help"):
-                    System.out.println("Commands:\n" +
-                            "attack\n" +
-                            "heal\n" +
-                            "players\n" +
-                            "enemies\n" +
-                            "save\n" +
-                            "healall\n" +
-                            "quit\n");
-
-                case ("quit"):
-                    return;
-            }
-
-            // Handles if the command is a player
-            if (players.containsKey(cmd)) {
-                System.out.println(players.get(cmd));
-                if (line.length != 1) {
-                    switch (line[1]) {
-                        case ("-s"):
-                            System.out.print("What weapon would you like to switch to? ");
-                            Scanner weapon = new Scanner(System.in);
-                            String weaponName = weapon.nextLine();
-                            players.get(cmd).switchWeapon(weaponName);
-                            break;
-                        case ("-i"):
-                            System.out.println(players.get(cmd).inventoryToString());
-                            break;
-                    }
-                }
-            }
-
-            // Handles if the command is an enemy
-            if (enemies.containsKey(cmd)) {
-                System.out.println(enemies.get(cmd));
-            }
-
-            System.out.println();
-        } // Ends the while loop
+        JFrame gui = new JFrame("Heroes of Asterfall");
+        gui.setLocation(50, 25);
+        gui.setContentPane(demo.createContentPane());
+        gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gui.setSize(1280, 720);
+        gui.setVisible(true);
     }
 
     /**
@@ -324,5 +410,44 @@ public class Main {
         catch(Exception ex) {
             System.out.println("Unable to save.");
         }
+    }
+
+    private void updateTextPane(final String text) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                Document doc = output.getDocument();
+                try {
+                    doc.insertString(doc.getLength(), text, null);
+                    while (doc.getText(0, doc.getLength()).split("\n").length >= 47) {
+                        doc.remove(0, 1);
+                    }
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+                output.setCaretPosition(doc.getLength() - 1);
+            }
+        });
+    }
+
+    private void redirectSystemStreams() {
+        OutputStream out = new OutputStream() {
+            @Override
+            public void write(final int b) throws IOException {
+                updateTextPane(String.valueOf((char) b));
+            }
+
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                updateTextPane(new String(b, off, len));
+            }
+
+            @Override
+            public void write(byte[] b) throws IOException {
+                write(b, 0, b.length);
+            }
+        };
+
+        System.setOut(new PrintStream(out, true));
+        System.setErr(new PrintStream(out, true));
     }
 }
