@@ -16,7 +16,7 @@ import javax.swing.*;
 import javax.swing.text.Document;
 
 /**
- * Created by jeremy on 3/5/16.
+ * The main file to run that runs the game itself
  */
 public class Main implements ActionListener {
 
@@ -27,19 +27,41 @@ public class Main implements ActionListener {
     private static TreeMap<String, Player> players = new TreeMap<>();
     private static TreeMap<String, Unit> units = new TreeMap<>();
 
-    // All variables that were made necessary by the GUI
-    private static JPanel textPanel, buttonPanel;
+    // All variables made necessary by the GUI
     private static JButton playersButton, enemiesButton, attackButton, healButton, saveButton, oneButton, twoButton;
     private static JTextArea output;
-    private static boolean waitingForUnit1 = false, waitingForUnit2 = false, waitingForRange = false;
-    private static Unit unit1 = null, unit2 = null;
+    private static boolean waitingForAttacker = false, waitingForDefender = false, waitingForRange = false,
+    waitingForHealer = false, waitingForPatient = false;
+    private static Unit attacker = null, defender = null, healer = null, patient = null;
     private static int range;
 
+    /**
+     * The main function.
+     * Calls init() to begin with.
+     * Constructs a GUI based on the rest of this file and does everything in there.
+     */
+    public static void main(String[] args) {
+        init();
+        Main demo = new Main();
+        demo.redirectSystemStreams();
+
+        JFrame gui = new JFrame("Heroes of Asterfall");
+        gui.setLocation(50, 25);
+        gui.setContentPane(demo.createContentPane());
+        gui.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        gui.setSize(1280, 720);
+        gui.setVisible(true);
+    }
+
+    /**
+     * Constructs the GUI and returns it as an object
+     * @return the GUI
+     */
     public JPanel createContentPane() {
         JPanel bottom = new JPanel();
         bottom.setLayout(null);
 
-        textPanel = new JPanel();
+        JPanel textPanel = new JPanel();
         textPanel.setLayout(null);
         textPanel.setLocation(10, 0);
         textPanel.setSize(600, 720);
@@ -50,9 +72,10 @@ public class Main implements ActionListener {
         output.setFont(new Font("monospaced", Font.PLAIN, 12));
         output.setSize(600, 720);
         output.setForeground(Color.black);
+        output.setEditable(false);
         textPanel.add(output);
 
-        buttonPanel = new JPanel();
+        JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(null);
         buttonPanel.setLocation(700, 50);
         buttonPanel.setSize(400, 670);
@@ -61,7 +84,6 @@ public class Main implements ActionListener {
         playersButton = new JButton("Players");
         playersButton.setSize(120, 30);
         playersButton.setLocation(0, 0);
-        playersButton.setHorizontalAlignment(0);
         playersButton.addActionListener(this);
         buttonPanel.add(playersButton);
 
@@ -71,15 +93,33 @@ public class Main implements ActionListener {
             temp.setSize(120, 30);
             temp.setLocation(0, yPos);
             temp.addActionListener(e -> {
-                if (waitingForUnit1) {
-                    unit1 = entry.getValue();
-                    waitingForUnit1 = false;
-                } else if (waitingForUnit2) {
-                    unit2 = entry.getValue();
-                    waitingForUnit2 = false;
+                if (waitingForAttacker) {
+                    attacker = entry.getValue();
+                    waitingForAttacker = false;
+                } else if (waitingForDefender) {
+                    defender = entry.getValue();
+                    waitingForDefender = false;
+                } else if (waitingForHealer) {
+                    healer = entry.getValue();
+                    waitingForHealer = false;
+                } else if (waitingForPatient) {
+                    patient = entry.getValue();
+                    waitingForPatient = false;
                 } else {
                     System.out.println(entry.getValue());
                     System.out.println();
+                }
+                if (!(attacker == null || defender == null || range == 0)) {
+                    Combat.combat(attacker, defender, range);
+                    System.out.println();
+                    attacker = null;
+                    defender = null;
+                    range = 0;
+                } else if (!(healer == null || patient == null)) {
+                    Heal.heal(healer, patient);
+                    System.out.println();
+                    healer = null;
+                    patient = null;
                 }
             });
             buttonPanel.add(temp);
@@ -89,7 +129,6 @@ public class Main implements ActionListener {
         enemiesButton = new JButton("Enemies");
         enemiesButton.setSize(120, 30);
         enemiesButton.setLocation(250, 0);
-        enemiesButton.setHorizontalAlignment(0);
         enemiesButton.addActionListener(this);
         buttonPanel.add(enemiesButton);
 
@@ -99,15 +138,33 @@ public class Main implements ActionListener {
             temp.setSize(120, 30);
             temp.setLocation(250, yPos);
             temp.addActionListener(e -> {
-                if (waitingForUnit1) {
-                    unit1 = entry.getValue();
-                    waitingForUnit1 = false;
-                } else if (waitingForUnit2) {
-                    unit2 = entry.getValue();
-                    waitingForUnit2 = false;
+                if (waitingForAttacker) {
+                    attacker = entry.getValue();
+                    waitingForAttacker = false;
+                } else if (waitingForDefender) {
+                    defender = entry.getValue();
+                    waitingForDefender = false;
+                } else if (waitingForHealer) {
+                    healer = entry.getValue();
+                    waitingForHealer = false;
+                } else if (waitingForPatient) {
+                    patient = entry.getValue();
+                    waitingForPatient = false;
                 } else {
                     System.out.println(entry.getValue());
                     System.out.println();
+                }
+                if (!(attacker == null || defender == null || range == 0)) {
+                    Combat.combat(attacker, defender, range);
+                    System.out.println();
+                    attacker = null;
+                    defender = null;
+                    range = 0;
+                } else if (!(healer == null || patient == null)) {
+                    Heal.heal(healer, patient);
+                    System.out.println();
+                    healer = null;
+                    patient = null;
                 }
             });
             buttonPanel.add(temp);
@@ -117,28 +174,24 @@ public class Main implements ActionListener {
         attackButton = new JButton("Attack");
         attackButton.setSize(120, 30);
         attackButton.setLocation(0, 500);
-        attackButton.setHorizontalAlignment(0);
         attackButton.addActionListener(this);
         buttonPanel.add(attackButton);
 
         oneButton = new JButton("1");
         oneButton.setSize(60, 30);
         oneButton.setLocation(0, 550);
-        oneButton.setHorizontalAlignment(0);
         oneButton.addActionListener(this);
         buttonPanel.add(oneButton);
 
         twoButton = new JButton("2");
         twoButton.setSize(60, 30);
         twoButton.setLocation(60, 550);
-        twoButton.setHorizontalAlignment(0);
         twoButton.addActionListener(this);
         buttonPanel.add(twoButton);
 
         healButton = new JButton("Heal");
         healButton.setSize(120, 30);
         healButton.setLocation(250, 500);
-        healButton.setHorizontalAlignment(0);
         healButton.addActionListener(this);
         buttonPanel.add(healButton);
 
@@ -156,8 +209,9 @@ public class Main implements ActionListener {
 
     /**
      * Invoked when an action occurs.
-     *
-     * @param e
+     * Governs what happens when button are pressed, excluding the buttons for individual units.
+     * Those are handled with lambdas when they are constructed.
+     * @param e The action, cased by a button press in this case
      */
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -176,68 +230,66 @@ public class Main implements ActionListener {
                 System.out.println("(" + enemy.getHp() + "/" + enemy.getMaxhp() + " hp)");
             }
         } else if (e.getSource() == attackButton) {
-            if ((unit1 == null) && (unit2 == null) && !waitingForUnit1 && !waitingForUnit2) {
-                waitingForUnit1 = true;
-                waitingForUnit2 = true;
+            if ((attacker == null) && (defender == null) && !waitingForAttacker && !waitingForDefender) {
+                waitingForAttacker = true;
+                waitingForDefender = true;
                 waitingForRange = true;
                 System.out.println("Waiting for attacker/defender/range...");
-            } else if (!((unit1 == null) || (unit2 == null)) && (range != 0)) {
-                Combat.combat(unit1, unit2, range);
-                unit1 = null;
-                unit2 = null;
-            } else if (waitingForUnit1 || waitingForUnit2 || waitingForRange){
-                unit1 = null;
-                unit2 = null;
+            } else if (!((attacker == null) || (defender == null)) && (range != 0)) {
+                Combat.combat(attacker, defender, range);
+                attacker = null;
+                defender = null;
+            } else if (waitingForAttacker || waitingForDefender || waitingForRange){
+                attacker = null;
+                defender = null;
                 range = 0;
-                waitingForUnit1 = false;
-                waitingForUnit2 = false;
+                waitingForAttacker = false;
+                waitingForDefender = false;
                 waitingForRange = false;
                 System.out.println("Combat cancelled.");
             }
         } else if (e.getSource() == oneButton && waitingForRange) {
             range = 1;
             waitingForRange = false;
+            if (!(waitingForAttacker || waitingForDefender)) {
+                Combat.combat(attacker, defender, range);
+                System.out.println();
+                attacker = null;
+                defender = null;
+                range = 0;
+            }
+            return;
         } else if (e.getSource() == twoButton && waitingForRange) {
             range = 2;
             waitingForRange = false;
+            if (!(waitingForAttacker || waitingForDefender)) {
+                Combat.combat(attacker, defender, range);
+                System.out.println();
+                attacker = null;
+                defender = null;
+                range = 0;
+            }
+            return;
         } else if (e.getSource() == healButton) {
-            if ((unit1 == null) && (unit2 == null) && !waitingForUnit1 && !waitingForUnit2) {
-                waitingForUnit1 = true;
-                waitingForUnit2 = true;
-                System.out.println("Waiting for healer/recipient...");
-            } else if (!((unit1 == null) || (unit2 == null))) {
-                Heal.heal(unit1, unit2);
-                unit1 = null;
-                unit2 = null;
-            } else if (waitingForUnit1 || waitingForUnit2){
-                unit1 = null;
-                unit2 = null;
-                waitingForUnit1 = false;
-                waitingForUnit2 = false;
+            if ((healer == null) && (patient == null) && !waitingForHealer && !waitingForPatient) {
+                waitingForHealer = true;
+                waitingForPatient = true;
+                System.out.println("Waiting for healer/patient...");
+            } else if (!((healer == null) || (patient == null))) {
+                Heal.heal(healer, patient);
+                healer = null;
+                patient = null;
+            } else if (waitingForHealer || waitingForPatient){
+                healer = null;
+                patient = null;
+                waitingForHealer = false;
+                waitingForPatient = false;
                 System.out.println("Healing cancelled.");
             }
         } else if (e.getSource() == saveButton) {
             save();
         }
         System.out.println();
-    }
-
-    /**
-     * The main function.
-     * Calls init() to begin with.
-     * Constructs a GUI based on the rest of this file and does everything in there.
-     */
-    public static void main(String[] args) {
-        init();
-        Main demo = new Main();
-        demo.redirectSystemStreams();
-
-        JFrame gui = new JFrame("Heroes of Asterfall");
-        gui.setLocation(50, 25);
-        gui.setContentPane(demo.createContentPane());
-        gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        gui.setSize(1280, 720);
-        gui.setVisible(true);
     }
 
     /**
@@ -412,20 +464,21 @@ public class Main implements ActionListener {
         }
     }
 
+    // These two at the bottom redirect System.out to the GUI.
+    // I don't know how they work, but they work, so I'm fine with that.
+
     private void updateTextPane(final String text) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                Document doc = output.getDocument();
-                try {
-                    doc.insertString(doc.getLength(), text, null);
-                    while (doc.getText(0, doc.getLength()).split("\n").length >= 47) {
-                        doc.remove(0, 1);
-                    }
-                } catch (Exception e) {
-                    System.out.println(e);
+        SwingUtilities.invokeLater(() -> {
+            Document doc = output.getDocument();
+            try {
+                doc.insertString(doc.getLength(), text, null);
+                while (doc.getText(0, doc.getLength()).split("\n").length >= 47) {
+                    doc.remove(0, 1);
                 }
-                output.setCaretPosition(doc.getLength() - 1);
+            } catch (Exception e) {
+                System.out.println("Error: " + e);
             }
+            output.setCaretPosition(doc.getLength() - 1);
         });
     }
 
