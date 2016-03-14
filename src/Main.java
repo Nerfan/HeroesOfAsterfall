@@ -7,7 +7,6 @@ import Units.Unit;
 import Units.Weapon;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.awt.*;
@@ -25,13 +24,11 @@ public class Main implements ActionListener {
     private static final String playersFile = "data/players.txt";
     private static TreeMap<String, Enemy> enemies = new TreeMap<>();
     private static TreeMap<String, Player> players = new TreeMap<>();
-    private static TreeMap<String, Unit> units = new TreeMap<>();
 
     // All variables made necessary by the GUI
     private static JButton playersButton, enemiesButton, attackButton, healButton, saveButton, oneButton, twoButton;
     private static JTextArea output;
-    private static boolean waitingForAttacker = false, waitingForDefender = false, waitingForRange = false,
-    waitingForHealer = false, waitingForPatient = false;
+    private static boolean inCombat = false, inHealing = false;
     private static Unit attacker = null, defender = null, healer = null, patient = null;
     private static int range;
 
@@ -55,6 +52,7 @@ public class Main implements ActionListener {
 
     /**
      * Constructs the GUI and returns it as an object
+     * Everything that affects how the GUI looks goes in here
      * @return the GUI
      */
     public JPanel createContentPane() {
@@ -67,6 +65,7 @@ public class Main implements ActionListener {
         textPanel.setSize(600, 720);
         bottom.add(textPanel);
 
+        // Retruns the text that would normally be sent to System.out
         output = new JTextArea("");
         output.setLocation(0, 0);
         output.setFont(new Font("monospaced", Font.PLAIN, 12));
@@ -93,33 +92,36 @@ public class Main implements ActionListener {
             temp.setSize(120, 30);
             temp.setLocation(0, yPos);
             temp.addActionListener(e -> {
-                if (waitingForAttacker) {
-                    attacker = entry.getValue();
-                    waitingForAttacker = false;
-                } else if (waitingForDefender) {
-                    defender = entry.getValue();
-                    waitingForDefender = false;
-                } else if (waitingForHealer) {
-                    healer = entry.getValue();
-                    waitingForHealer = false;
-                } else if (waitingForPatient) {
-                    patient = entry.getValue();
-                    waitingForPatient = false;
+                if (inCombat) {
+                    if (attacker == null) {
+                        attacker = entry.getValue();
+                    } else if (defender == null) {
+                        defender = entry.getValue();
+                    }
+                    if (!(attacker == null || defender == null || range == 0)) {
+                        Combat.combat(attacker, defender, range);
+                        System.out.println();
+                        attacker = null;
+                        defender = null;
+                        range = 0;
+                        inCombat = false;
+                    }
+                } else if (inHealing) {
+                    if (healer == null) {
+                        healer = entry.getValue();
+                    } else if (patient == null) {
+                        patient = entry.getValue();
+                    }
+                    if (!(healer == null || patient == null)) {
+                        Heal.heal(healer, patient);
+                        System.out.println();
+                        healer = null;
+                        patient = null;
+                        inHealing = false;
+                    }
                 } else {
                     System.out.println(entry.getValue());
                     System.out.println();
-                }
-                if (!(attacker == null || defender == null || range == 0)) {
-                    Combat.combat(attacker, defender, range);
-                    System.out.println();
-                    attacker = null;
-                    defender = null;
-                    range = 0;
-                } else if (!(healer == null || patient == null)) {
-                    Heal.heal(healer, patient);
-                    System.out.println();
-                    healer = null;
-                    patient = null;
                 }
             });
             buttonPanel.add(temp);
@@ -138,33 +140,36 @@ public class Main implements ActionListener {
             temp.setSize(120, 30);
             temp.setLocation(250, yPos);
             temp.addActionListener(e -> {
-                if (waitingForAttacker) {
-                    attacker = entry.getValue();
-                    waitingForAttacker = false;
-                } else if (waitingForDefender) {
-                    defender = entry.getValue();
-                    waitingForDefender = false;
-                } else if (waitingForHealer) {
-                    healer = entry.getValue();
-                    waitingForHealer = false;
-                } else if (waitingForPatient) {
-                    patient = entry.getValue();
-                    waitingForPatient = false;
+                if (inCombat) {
+                    if (attacker == null) {
+                        attacker = entry.getValue();
+                    } else if (defender == null) {
+                        defender = entry.getValue();
+                    }
+                    if (!(attacker == null || defender == null || range == 0)) {
+                        Combat.combat(attacker, defender, range);
+                        System.out.println();
+                        attacker = null;
+                        defender = null;
+                        range = 0;
+                        inCombat = false;
+                    }
+                } else if (inHealing) {
+                    if (healer == null) {
+                        healer = entry.getValue();
+                    } else if (patient == null) {
+                        patient = entry.getValue();
+                    }
+                    if (!(healer == null || patient == null)) {
+                        Heal.heal(healer, patient);
+                        System.out.println();
+                        healer = null;
+                        patient = null;
+                        inHealing = false;
+                    }
                 } else {
                     System.out.println(entry.getValue());
                     System.out.println();
-                }
-                if (!(attacker == null || defender == null || range == 0)) {
-                    Combat.combat(attacker, defender, range);
-                    System.out.println();
-                    attacker = null;
-                    defender = null;
-                    range = 0;
-                } else if (!(healer == null || patient == null)) {
-                    Heal.heal(healer, patient);
-                    System.out.println();
-                    healer = null;
-                    patient = null;
                 }
             });
             buttonPanel.add(temp);
@@ -209,8 +214,8 @@ public class Main implements ActionListener {
 
     /**
      * Invoked when an action occurs.
-     * Governs what happens when button are pressed, excluding the buttons for individual units.
-     * Those are handled with lambdas when they are constructed.
+     * Governs what happens when button are pressed, excluding the buttons for individual Units.
+     * The Unit actions are handled with lambdas when they are constructed in createContentPane().
      * @param e The action, cased by a button press in this case
      */
     @Override
@@ -230,60 +235,53 @@ public class Main implements ActionListener {
                 System.out.println("(" + enemy.getHp() + "/" + enemy.getMaxhp() + " hp)");
             }
         } else if (e.getSource() == attackButton) {
-            if ((attacker == null) && (defender == null) && !waitingForAttacker && !waitingForDefender) {
-                waitingForAttacker = true;
-                waitingForDefender = true;
-                waitingForRange = true;
+            if (inHealing) {
+                inHealing = false;
+                System.out.println("Healing cancelled.\n");
+            }
+            if (!inCombat) {
+                inCombat = true;
                 System.out.println("Waiting for attacker/defender/range...");
-            } else if (!((attacker == null) || (defender == null)) && (range != 0)) {
-                Combat.combat(attacker, defender, range);
-                attacker = null;
-                defender = null;
-            } else if (waitingForAttacker || waitingForDefender || waitingForRange){
-                attacker = null;
-                defender = null;
-                range = 0;
-                waitingForAttacker = false;
-                waitingForDefender = false;
-                waitingForRange = false;
+            } else {
+                inCombat = false;
                 System.out.println("Combat cancelled.");
             }
-        } else if (e.getSource() == oneButton && waitingForRange) {
-            range = 1;
-            waitingForRange = false;
-            if (!(waitingForAttacker || waitingForDefender)) {
-                Combat.combat(attacker, defender, range);
-                System.out.println();
-                attacker = null;
-                defender = null;
-                range = 0;
+        } else if (e.getSource() == oneButton) {
+            if (inCombat) {
+                range = 1;
+                if (!(attacker == null || defender == null)) {
+                    Combat.combat(attacker, defender, range);
+                    System.out.println();
+                    attacker = null;
+                    defender = null;
+                    range = 0;
+                    inCombat = false;
+                }
             }
             return;
-        } else if (e.getSource() == twoButton && waitingForRange) {
-            range = 2;
-            waitingForRange = false;
-            if (!(waitingForAttacker || waitingForDefender)) {
-                Combat.combat(attacker, defender, range);
-                System.out.println();
-                attacker = null;
-                defender = null;
-                range = 0;
+        } else if (e.getSource() == twoButton) {
+            if (inCombat) {
+                range = 2;
+                if (!(attacker == null || defender == null)) {
+                    Combat.combat(attacker, defender, range);
+                    System.out.println();
+                    attacker = null;
+                    defender = null;
+                    range = 0;
+                    inCombat = false;
+                }
             }
             return;
         } else if (e.getSource() == healButton) {
-            if ((healer == null) && (patient == null) && !waitingForHealer && !waitingForPatient) {
-                waitingForHealer = true;
-                waitingForPatient = true;
+            if (inCombat) {
+                inCombat = false;
+                System.out.println("Combat cancelled.\n");
+            }
+            if (!inHealing) {
+                inHealing = true;
                 System.out.println("Waiting for healer/patient...");
-            } else if (!((healer == null) || (patient == null))) {
-                Heal.heal(healer, patient);
-                healer = null;
-                patient = null;
-            } else if (waitingForHealer || waitingForPatient){
-                healer = null;
-                patient = null;
-                waitingForHealer = false;
-                waitingForPatient = false;
+            } else {
+                inHealing = false;
                 System.out.println("Healing cancelled.");
             }
         } else if (e.getSource() == saveButton) {
@@ -294,7 +292,7 @@ public class Main implements ActionListener {
 
     /**
      * Does everything needed to start the game.
-     * Populates HashMaps with players, enemies, weapons, etc.
+     * Populates TreeMaps with players, enemies, weapons, etc.
      * Pulls that data from files specified in the Main class
      */
     public static void init() {
@@ -378,7 +376,7 @@ public class Main implements ActionListener {
                     list[i-2] = Integer.parseInt(firstlist[i]);
                 }
                 // Create Inventory
-                HashMap<String, Weapon> inventory = new HashMap<>();
+                TreeMap<String, Weapon> inventory = new TreeMap<>();
                 for (int i = 17; i < firstlist.length; i += 3) {
                     String name = firstlist[i].toLowerCase() + " " + firstlist[i+1].toLowerCase();
                     inventory.put(name, new Weapon(weapons.get(name)));
@@ -410,16 +408,6 @@ public class Main implements ActionListener {
 
             // Initializes level up stuff
             LevelUp.init();
-
-            // Copies enemy and player TreeMaps into a general units TreeMap
-            // Uses shallow copies so all changes happen to both copies of the unit
-            // Basically gives two ways to call each unit
-            for (Map.Entry<String, Player> entry : players.entrySet()) {
-                units.put(entry.getKey(), entry.getValue());
-            }
-            for (Map.Entry<String, Enemy> entry : enemies.entrySet()) {
-                units.put(entry.getKey(), entry.getValue());
-            }
         }
 
 
