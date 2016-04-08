@@ -7,292 +7,156 @@ import Units.Unit;
 import Units.Weapon;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.TreeMap;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.text.Document;
 
 /**
- * The main file to run that runs the game itself
+ * Main file to run, initializes all data necessary to run the game and then runs a text-based ui.
+ * @author Jeremy Lefurge
  */
-public class Main implements ActionListener {
+public class Main {
 
     private static final String weaponsFile = "data/weapons.txt";
     private static final String enemiesFile = "data/level1.txt";
     private static final String playersFile = "data/players.txt";
     private static TreeMap<String, Enemy> enemies = new TreeMap<>();
     private static TreeMap<String, Player> players = new TreeMap<>();
-
-    // All variables made necessary by the GUI
-    private static JButton playersButton, enemiesButton, attackButton, healButton, saveButton, oneButton, twoButton;
-    private static JTextArea output;
-    private static boolean inCombat = false, inHealing = false;
-    private static Unit attacker = null, defender = null, healer = null, patient = null;
-    private static int range;
+    private static TreeMap<String, Unit> units = new TreeMap<>();
 
     /**
-     * The main function.
-     * Calls init() to begin with.
-     * Constructs a GUI based on the rest of this file and does everything in there.
+     * The big guy.
+     * Calls init() to begin with
+     * Loops through and asks the user for commands
+     * Does stuff based on those commands
      */
     public static void main(String[] args) {
         init();
-        Main demo = new Main();
-        demo.redirectSystemStreams();
 
-        JFrame gui = new JFrame("Heroes of Asterfall");
-        gui.setLocation(50, 25);
-        gui.setContentPane(demo.createContentPane());
-        gui.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        gui.setSize(1280, 720);
-        gui.setVisible(true);
-    }
+        while (true) {
+            Scanner console = new Scanner(System.in);
+            System.out.printf("Enter command: ");
+            String[] line = console.nextLine().split("\\s+");
+            String cmd = line[0].toLowerCase();
 
-    /**
-     * Constructs the GUI and returns it as an object
-     * Everything that affects how the GUI looks goes in here
-     * @return the GUI
-     */
-    public JPanel createContentPane() {
-        JPanel bottom = new JPanel();
-        bottom.setLayout(null);
+            // Handles simple commands
+            switch (cmd) {
+                case ("attack"):    // Sets up combat
+                    String attacker = "";
+                    String defender = "";
+                    int distance = 1;
 
-        JPanel textPanel = new JPanel();
-        textPanel.setLayout(null);
-        textPanel.setLocation(10, 0);
-        textPanel.setSize(600, 720);
-        bottom.add(textPanel);
-
-        // Retruns the text that would normally be sent to System.out
-        output = new JTextArea("");
-        output.setLocation(0, 0);
-        output.setFont(new Font("monospaced", Font.PLAIN, 12));
-        output.setSize(600, 720);
-        output.setForeground(Color.black);
-        output.setEditable(false);
-        textPanel.add(output);
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(null);
-        buttonPanel.setLocation(700, 50);
-        buttonPanel.setSize(400, 670);
-        bottom.add(buttonPanel);
-
-        playersButton = new JButton("Players");
-        playersButton.setSize(120, 30);
-        playersButton.setLocation(0, 0);
-        playersButton.addActionListener(this);
-        buttonPanel.add(playersButton);
-
-        int yPos = 50;
-        for (Map.Entry<String, Player> entry : players.entrySet()) {
-            JButton temp = new JButton(entry.getValue().getName());
-            temp.setSize(120, 30);
-            temp.setLocation(0, yPos);
-            temp.addActionListener(e -> {
-                if (inCombat) {
-                    if (attacker == null) {
-                        attacker = entry.getValue();
-                    } else if (defender == null) {
-                        defender = entry.getValue();
+                    if (line.length == 4) {
+                        try {
+                            attacker = line[1];
+                            defender = line[2];
+                            distance = Integer.parseInt(line[3]);
+                        }
+                        catch (Exception ex) {
+                            System.out.println("Error: " + ex);
+                        }
+                    } else {
+                        System.out.printf("Attacker: ");
+                        attacker = console.next();
+                        System.out.printf("Defender: ");
+                        defender = console.next();
+                        System.out.printf("Distance: ");
+                        distance = console.nextInt();
                     }
-                    if (!(attacker == null || defender == null || range == 0)) {
-                        Combat.combat(attacker, defender, range);
-                        System.out.println();
-                        attacker = null;
-                        defender = null;
-                        range = 0;
-                        inCombat = false;
+                    Combat.combat(units.get(attacker.toLowerCase()), units.get(defender.toLowerCase()), distance);
+                    break;
+
+                case ("heal"):      // Sets up healing
+                    String healer;
+                    String recipient;
+
+                    if (line.length == 3) {
+                        healer = line[1];
+                        recipient = line[2];
+                    } else {
+                        System.out.printf("Healer: ");
+                        healer = console.next();
+                        System.out.printf("Recipient: ");
+                        recipient = console.next();
                     }
-                } else if (inHealing) {
-                    if (healer == null) {
-                        healer = entry.getValue();
-                    } else if (patient == null) {
-                        patient = entry.getValue();
+                    Heal.heal(units.get(healer.toLowerCase()), units.get(recipient.toLowerCase()));
+                    break;
+
+                case ("players"):   // Prints all players and their hp
+                    System.out.println("==================== ALL PLAYERS ====================");
+                    for (Map.Entry<String, Player> entry : players.entrySet()) {
+                        Player player = entry.getValue();
+                        System.out.printf("%-30s", player.getName());
+                        System.out.println("(" + player.getHp() + "/" + player.getMaxhp() + " hp)");
                     }
-                    if (!(healer == null || patient == null)) {
-                        Heal.heal(healer, patient);
-                        System.out.println();
-                        healer = null;
-                        patient = null;
-                        inHealing = false;
+                    break;
+
+                case("enemies"):    // Prints all enemies and their hp
+                    System.out.println("==================== ALL ENEMIES ====================");
+                    for (Map.Entry<String, Enemy> entry : enemies.entrySet()) {
+                        Enemy enemy = entry.getValue();
+                        System.out.printf("%-30s", enemy.getName());
+                        System.out.println("(" + enemy.getHp() + "/" + enemy.getMaxhp() + " hp)");
                     }
-                } else {
-                    System.out.println(entry.getValue());
-                    System.out.println();
-                }
-            });
-            buttonPanel.add(temp);
-            yPos += 40;
-        }
+                    break;
 
-        enemiesButton = new JButton("Enemies");
-        enemiesButton.setSize(120, 30);
-        enemiesButton.setLocation(250, 0);
-        enemiesButton.addActionListener(this);
-        buttonPanel.add(enemiesButton);
+                case ("save"):      // Save players to a file
+                    save();
+                    break;
 
-        yPos = 50;
-        for (Map.Entry<String, Enemy> entry : enemies.entrySet()) {
-            JButton temp = new JButton(entry.getValue().getName());
-            temp.setSize(120, 30);
-            temp.setLocation(250, yPos);
-            temp.addActionListener(e -> {
-                if (inCombat) {
-                    if (attacker == null) {
-                        attacker = entry.getValue();
-                    } else if (defender == null) {
-                        defender = entry.getValue();
+                case ("healall"):
+                    for (Map.Entry<String, Player> entry : players.entrySet()) {
+                        Player player = entry.getValue();
+                        player.setHp(player.getMaxhp());
                     }
-                    if (!(attacker == null || defender == null || range == 0)) {
-                        Combat.combat(attacker, defender, range);
-                        System.out.println();
-                        attacker = null;
-                        defender = null;
-                        range = 0;
-                        inCombat = false;
-                    }
-                } else if (inHealing) {
-                    if (healer == null) {
-                        healer = entry.getValue();
-                    } else if (patient == null) {
-                        patient = entry.getValue();
-                    }
-                    if (!(healer == null || patient == null)) {
-                        Heal.heal(healer, patient);
-                        System.out.println();
-                        healer = null;
-                        patient = null;
-                        inHealing = false;
-                    }
-                } else {
-                    System.out.println(entry.getValue());
-                    System.out.println();
-                }
-            });
-            buttonPanel.add(temp);
-            yPos += 40;
-        }
+                    System.out.println("All players restored to full health.");
+                    break;
 
-        attackButton = new JButton("Attack");
-        attackButton.setSize(120, 30);
-        attackButton.setLocation(0, 500);
-        attackButton.addActionListener(this);
-        buttonPanel.add(attackButton);
+                case ("help"):
+                    System.out.println("Commands:\n" +
+                            "attack\n" +
+                            "heal\n" +
+                            "players\n" +
+                            "enemies\n" +
+                            "save\n" +
+                            "healall\n" +
+                            "quit\n");
 
-        oneButton = new JButton("1");
-        oneButton.setSize(60, 30);
-        oneButton.setLocation(0, 550);
-        oneButton.addActionListener(this);
-        buttonPanel.add(oneButton);
-
-        twoButton = new JButton("2");
-        twoButton.setSize(60, 30);
-        twoButton.setLocation(60, 550);
-        twoButton.addActionListener(this);
-        buttonPanel.add(twoButton);
-
-        healButton = new JButton("Heal");
-        healButton.setSize(120, 30);
-        healButton.setLocation(250, 500);
-        healButton.addActionListener(this);
-        buttonPanel.add(healButton);
-
-        saveButton = new JButton("Save");
-        saveButton.setSize(120, 30);
-        saveButton.setLocation(250, 550);
-        saveButton.addActionListener(this);
-        buttonPanel.add(saveButton);
-
-        bottom.setOpaque(true);
-
-        return bottom;
-    }
-
-
-    /**
-     * Invoked when an action occurs.
-     * Governs what happens when button are pressed, excluding the buttons for individual Units.
-     * The Unit actions are handled with lambdas when they are constructed in createContentPane().
-     * @param e The action, cased by a button press in this case
-     */
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == playersButton) {
-            System.out.println("==================== ALL PLAYERS ====================");
-            for (Map.Entry<String, Player> entry : players.entrySet()) {
-                Player player = entry.getValue();
-                System.out.printf("%-30s", player.getName());
-                System.out.println("(" + player.getHp() + "/" + player.getMaxhp() + " hp)");
+                case ("quit"):
+                    return;
             }
-        } else if (e.getSource() == enemiesButton) {
-            System.out.println("==================== ALL ENEMIES ====================");
-            for (Map.Entry<String, Enemy> entry : enemies.entrySet()) {
-                Enemy enemy = entry.getValue();
-                System.out.printf("%-30s", enemy.getName());
-                System.out.println("(" + enemy.getHp() + "/" + enemy.getMaxhp() + " hp)");
-            }
-        } else if (e.getSource() == attackButton) {
-            if (inHealing) {
-                inHealing = false;
-                System.out.println("Healing cancelled.\n");
-            }
-            if (!inCombat) {
-                inCombat = true;
-                System.out.println("Waiting for attacker/defender/range...");
-            } else {
-                inCombat = false;
-                System.out.println("Combat cancelled.");
-            }
-        } else if (e.getSource() == oneButton) {
-            if (inCombat) {
-                range = 1;
-                if (!(attacker == null || defender == null)) {
-                    Combat.combat(attacker, defender, range);
-                    System.out.println();
-                    attacker = null;
-                    defender = null;
-                    range = 0;
-                    inCombat = false;
+
+            // Handles if the command is a player
+            if (players.containsKey(cmd)) {
+                System.out.println(players.get(cmd));
+                if (line.length != 1) {
+                    switch (line[1]) {
+                        case ("-s"):
+                            System.out.print("What weapon would you like to switch to? ");
+                            Scanner weapon = new Scanner(System.in);
+                            String weaponName = weapon.nextLine();
+                            players.get(cmd).switchWeapon(weaponName);
+                            break;
+                        case ("-i"):
+                            System.out.println(players.get(cmd).inventoryToString());
+                            break;
+                    }
                 }
             }
-            return;
-        } else if (e.getSource() == twoButton) {
-            if (inCombat) {
-                range = 2;
-                if (!(attacker == null || defender == null)) {
-                    Combat.combat(attacker, defender, range);
-                    System.out.println();
-                    attacker = null;
-                    defender = null;
-                    range = 0;
-                    inCombat = false;
-                }
+
+            // Handles if the command is an enemy
+            if (enemies.containsKey(cmd)) {
+                System.out.println(enemies.get(cmd));
             }
-            return;
-        } else if (e.getSource() == healButton) {
-            if (inCombat) {
-                inCombat = false;
-                System.out.println("Combat cancelled.\n");
-            }
-            if (!inHealing) {
-                inHealing = true;
-                System.out.println("Waiting for healer/patient...");
-            } else {
-                inHealing = false;
-                System.out.println("Healing cancelled.");
-            }
-        } else if (e.getSource() == saveButton) {
-            save();
-        }
-        System.out.println();
+
+            System.out.println();
+        } // Ends the while loop
     }
 
     /**
      * Does everything needed to start the game.
-     * Populates TreeMaps with players, enemies, weapons, etc.
+     * Populates HashMaps with players, enemies, weapons, etc.
      * Pulls that data from files specified in the Main class
      */
     public static void init() {
@@ -376,7 +240,7 @@ public class Main implements ActionListener {
                     list[i-2] = Integer.parseInt(firstlist[i]);
                 }
                 // Create Inventory
-                TreeMap<String, Weapon> inventory = new TreeMap<>();
+                HashMap<String, Weapon> inventory = new HashMap<>();
                 for (int i = 17; i < firstlist.length; i += 3) {
                     String name = firstlist[i].toLowerCase() + " " + firstlist[i+1].toLowerCase();
                     inventory.put(name, new Weapon(weapons.get(name)));
@@ -408,6 +272,16 @@ public class Main implements ActionListener {
 
             // Initializes level up stuff
             LevelUp.init();
+
+            // Copies enemy and player TreeMaps into a general units TreeMap
+            // Uses shallow copies so all changes happen to both copies of the unit
+            // Basically gives two ways to call each unit
+            for (Map.Entry<String, Player> entry : players.entrySet()) {
+                units.put(entry.getKey(), entry.getValue());
+            }
+            for (Map.Entry<String, Enemy> entry : enemies.entrySet()) {
+                units.put(entry.getKey(), entry.getValue());
+            }
         }
 
 
@@ -450,45 +324,5 @@ public class Main implements ActionListener {
         catch(Exception ex) {
             System.out.println("Unable to save.");
         }
-    }
-
-    // These two at the bottom redirect System.out to the GUI.
-    // I don't know how they work, but they work, so I'm fine with that.
-
-    private void updateTextPane(final String text) {
-        SwingUtilities.invokeLater(() -> {
-            Document doc = output.getDocument();
-            try {
-                doc.insertString(doc.getLength(), text, null);
-                while (doc.getText(0, doc.getLength()).split("\n").length >= 47) {
-                    doc.remove(0, 1);
-                }
-            } catch (Exception e) {
-                System.out.println("Error: " + e);
-            }
-            output.setCaretPosition(doc.getLength() - 1);
-        });
-    }
-
-    private void redirectSystemStreams() {
-        OutputStream out = new OutputStream() {
-            @Override
-            public void write(final int b) throws IOException {
-                updateTextPane(String.valueOf((char) b));
-            }
-
-            @Override
-            public void write(byte[] b, int off, int len) throws IOException {
-                updateTextPane(new String(b, off, len));
-            }
-
-            @Override
-            public void write(byte[] b) throws IOException {
-                write(b, 0, b.length);
-            }
-        };
-
-        System.setOut(new PrintStream(out, true));
-        System.setErr(new PrintStream(out, true));
     }
 }

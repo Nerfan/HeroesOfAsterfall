@@ -14,7 +14,7 @@ public class Player extends Unit {
     int level;
     int xp;
     int gold;
-    Map<String, Weapon> inventory;
+    HashMap<String, Weapon> inventory;
 
     /**
      * Constructor
@@ -38,7 +38,7 @@ public class Player extends Unit {
      */
     public Player(String name, String role,
                   int level, int xp, int maxhp, int hp, int move, int str, int mag, int skill, int spd,
-                  int defense, int res, int mastery, int gold, Map<String, Weapon> inventory, Weapon equipped) {
+                  int defense, int res, int mastery, int gold, HashMap<String, Weapon> inventory, Weapon equipped) {
         super(name, maxhp, hp, move, str, mag, skill, spd, defense, res, mastery, equipped);
         this.role = role;
         this.level = level;
@@ -59,7 +59,7 @@ public class Player extends Unit {
      * @param xp    amount of xp to add
      */
     public void increaseXP(int xp) {
-        this.xp += 1;
+        this.xp += xp;
         System.out.println(this.name + " gained " + xp + " xp! ");
         if (this.xp >= 10) {
             this.xp -= 10;
@@ -121,7 +121,7 @@ public class Player extends Unit {
         return gold;
     }
 
-    public Map<String, Weapon> getInventory() {
+    public HashMap<String, Weapon> getInventory() {
         return inventory;
     }
 
