@@ -20,8 +20,8 @@ public class HoAModel extends Observable {
     private String weaponsFile;
     private String enemiesFile;
     private String playersFile;
-    private TreeMap<String, Enemy> enemies;
-    private TreeMap<String, Player> players;
+    private TreeMap<String, Enemy> enemies; // Keys are lowercase
+    private TreeMap<String, Player> players; // Keys are lowercase
     private TreeMap<String, Unit> units;
     private TreeMap<String, Weapon> weapons;
 
@@ -181,7 +181,7 @@ public class HoAModel extends Observable {
      * @param defenderName Name of the defender
      * @param distance Distance from one combatant to the other
      */
-    public void attack(String attackerName, String defenderName, int distance) {
+    public void combat(String attackerName, String defenderName, int distance) {
         Combat.combat(units.get(attackerName.toLowerCase()), units.get(defenderName.toLowerCase()), distance);
         setChanged();
         notifyObservers();
@@ -235,14 +235,54 @@ public class HoAModel extends Observable {
      */
     public String getAllEnemies() {
         String enemiesList = "==================== ALL ENEMIES ====================\n";
-        for (Map.Entry<String, Player> entry : players.entrySet()) {
-            Player enemy = entry.getValue();
+        for (Map.Entry<String, Enemy> entry : enemies.entrySet()) {
+            Enemy enemy = entry.getValue();
             enemiesList += String.format("%-30s", enemy.getName());
             enemiesList += "(" + enemy.getHp() + "/" + enemy.getMaxhp() + " hp)\n";
         }
         setChanged();
         notifyObservers();
         return enemiesList;
+    }
+
+    /**
+     * Tells whether or not the players Map contains a certain key (i.e. name)
+     *
+     * @param playerName Name of the player to look for
+     * @return True if the player is in the players Map, false if not
+     */
+    public boolean hasPlayer(String playerName) {
+        return this.players.containsKey(playerName.toLowerCase());
+    }
+
+    /**
+     * Tells whether or not the enemies Map contains a certain key (i.e. name)
+     *
+     * @param enemyName Name of the enemy to look for
+     * @return True if the enemy is in the enemies Map, false if not
+     */
+    public boolean hasEnemy(String enemyName) {
+        return this.players.containsKey(enemyName.toLowerCase());
+    }
+
+    /**
+     * Returns a player by name
+     *
+     * @param playerName Name of the player to retrieve
+     * @return The player object from the Map
+     */
+    public Player getPlayer(String playerName) {
+        return this.players.get(playerName.toLowerCase());
+    }
+
+    /**
+     * Returns an enemy by name
+     *
+     * @param enemyName Name of the enemy to retrieve
+     * @return The enemy object from the Map
+     */
+    public Player getEnemy(String enemyName) {
+        return this.players.get(enemyName.toLowerCase());
     }
 
     /**
@@ -253,7 +293,6 @@ public class HoAModel extends Observable {
             Player player = entry.getValue();
             player.setHp(player.getMaxhp());
         }
-        System.out.println("All players restored to full health.");
         setChanged();
         notifyObservers();
     }
