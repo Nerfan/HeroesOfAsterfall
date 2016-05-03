@@ -262,7 +262,7 @@ public class HoAModel extends Observable {
      * @return True if the enemy is in the enemies Map, false if not
      */
     public boolean hasEnemy(String enemyName) {
-        return this.players.containsKey(enemyName.toLowerCase());
+        return this.enemies.containsKey(enemyName.toLowerCase());
     }
 
     /**
@@ -281,8 +281,8 @@ public class HoAModel extends Observable {
      * @param enemyName Name of the enemy to retrieve
      * @return The enemy object from the Map
      */
-    public Player getEnemy(String enemyName) {
-        return this.players.get(enemyName.toLowerCase());
+    public Enemy getEnemy(String enemyName) {
+        return this.enemies.get(enemyName.toLowerCase());
     }
 
     /**
