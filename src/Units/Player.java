@@ -73,6 +73,7 @@ public class Player extends Unit {
      * @param weaponName    String, key of weapon in inventory HashMap
      */
     public void switchWeapon(String weaponName) {
+        weaponName = weaponName.toLowerCase();
         if (!this.inventory.containsKey(weaponName)) {
             System.out.println("Error: Weapon not in inventory.");
             return;
