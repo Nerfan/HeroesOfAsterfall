@@ -10,21 +10,39 @@ import java.io.*;
 import java.util.*;
 
 /**
-* The model of the game for the Model View Controller (MVC) design pattern
-* Everything that happens in the game can be called from this class.
-*
-* @author Jeremy Lefurge
-*/
+ * The model of the game for the Model View Controller (MVC) design pattern
+ * Everything that happens in the game can be called from this class.
+ * However, nothing should prompt for input at any point during the methods contained in this file.
+ *
+ * @author Jeremy Lefurge
+ */
 public class HoAModel extends Observable {
 
+    /** Path to the file where the weapons should be read from */
     private String weaponsFile;
+    /** Path to the file where the enemies should be read from */
     private String enemiesFile;
+    /** Path to the file where the players should be read from */
     private String playersFile;
-    private TreeMap<String, Enemy> enemies; // Keys are lowercase
-    private TreeMap<String, Player> players; // Keys are lowercase
+
+    // Keys for all Maps are lowercase
+    /** All enemies stored by name */
+    private TreeMap<String, Enemy> enemies;
+    /** All players stored by name */
+    private TreeMap<String, Player> players;
+    /** All units stored by name */
     private TreeMap<String, Unit> units;
+    /** All weapons stored by name */
     private TreeMap<String, Weapon> weapons;
 
+    /**
+     * Constructs a new model.
+     * Populates all TreeMaps from files specified as parameters
+     *
+     * @param playersFile Path to file to read players from
+     * @param enemiesFile Path to file to read enemies from
+     * @param weaponsFile Path to file to read weapons from
+     */
     public HoAModel(String playersFile, String enemiesFile, String weaponsFile) {
         // Simple constructor stuff
         this.weaponsFile = weaponsFile;
@@ -40,7 +58,6 @@ public class HoAModel extends Observable {
         String line; // This will reference one line at a time, used for all file reading
 
         try {
-
 /////////////////////////////////////////////// WEAPON STUFF //////////////////////////////////////////////////////////
             // Initialize weapon list
             FileReader fileReader =
@@ -49,7 +66,7 @@ public class HoAModel extends Observable {
                     new BufferedReader(fileReader);
             while((line = bufferedReader.readLine()) != null) {
                 String[] firstList = line.split("\\s+");
-                Integer[] list = new Integer[6];
+                int[] list = new int[6];
                 for (int i = 2; i < firstList.length; i +=1) {
                     if (i != 4) {
                         list[i - 2] = Integer.parseInt(firstList[i]);
@@ -110,7 +127,7 @@ public class HoAModel extends Observable {
 
             while((line = bufferedReader.readLine()) != null) {     // Loops through player list
                 String[] firstlist = line.split("\\s+");
-                Integer[] list = new Integer[13];
+                int[] list = new int[13];
                 for (int i = 2; i < 15; i +=1) {
                     list[i-2] = Integer.parseInt(firstlist[i]);
                 }
@@ -195,6 +212,7 @@ public class HoAModel extends Observable {
      */
     public void heal(String healerName, String recipientName) {
         Heal.heal(units.get(healerName.toLowerCase()), units.get(recipientName.toLowerCase()));
+        System.out.println("All players restored to full health.");
         setChanged();
         notifyObservers();
     }
@@ -223,8 +241,6 @@ public class HoAModel extends Observable {
             playersList += String.format("%-30s", player.getName());
             playersList += "(" + player.getHp() + "/" + player.getMaxhp() + " hp)\n";
         }
-        setChanged();
-        notifyObservers();
         return playersList;
     }
 
@@ -240,8 +256,6 @@ public class HoAModel extends Observable {
             enemiesList += String.format("%-30s", enemy.getName());
             enemiesList += "(" + enemy.getHp() + "/" + enemy.getMaxhp() + " hp)\n";
         }
-        setChanged();
-        notifyObservers();
         return enemiesList;
     }
 
