@@ -98,11 +98,11 @@ public class PTUI implements Observer {
                     break;
 
                 case ("players"):   // Prints all players and their hp
-                    System.out.print(model.getAllPlayers());
+                    System.out.print(model.playersToString());
                     break;
 
                 case("enemies"):    // Prints all enemies and their hp
-                    System.out.print(model.getAllEnemies());
+                    System.out.print(model.enemiesToString());
                     break;
 
                 case ("save"):      // Save players to a file

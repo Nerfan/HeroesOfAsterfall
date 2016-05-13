@@ -234,7 +234,7 @@ public class HoAModel extends Observable {
      *
      * @return String listing all players with their health
      */
-    public String getAllPlayers() {
+    public String playersToString() {
         String playersList = "==================== ALL PLAYERS ====================\n";
         for (Map.Entry<String, Player> entry : players.entrySet()) {
             Player player = entry.getValue();
@@ -249,7 +249,7 @@ public class HoAModel extends Observable {
      *
      * @return String listing all enemies with their health
      */
-    public String getAllEnemies() {
+    public String enemiesToString() {
         String enemiesList = "==================== ALL ENEMIES ====================\n";
         for (Map.Entry<String, Enemy> entry : enemies.entrySet()) {
             Enemy enemy = entry.getValue();
@@ -340,4 +340,48 @@ public class HoAModel extends Observable {
         setChanged();
         notifyObservers();
     }
+
+    // Simple getters
+
+    /**
+     * Returns the list of players
+     * @return TreeMap of players
+     */
+    public TreeMap<String, Player> getPlayers() { return this.players; }
+
+    /**
+     * Returns the list of enemies
+     * @return TreeMap of enemies
+     */
+    public TreeMap<String, Enemy> getEnemies() { return this.enemies; }
+
+    /**
+     * Return  the list of all units
+     * @return TreeMap of all units
+     */
+    public TreeMap<String, Unit> getUnits() { return units; }
+
+    /**
+     * Return the list of weapons
+     * @return TreeMap of weapons
+     */
+    public TreeMap<String, Weapon> getWeapons() { return weapons; }
+
+    /**
+     * Returns the path to the weapons file
+     * @return Path to weapons file
+     */
+    public String getWeaponsFile() { return weaponsFile; }
+
+    /**
+     * Returns the path to the enemies file
+     * @return Path to enemies file
+     */
+    public String getEnemiesFile() { return enemiesFile; }
+
+    /**
+     * Returns the path to the players file
+     * @return Path to players file
+     */
+    public String getPlayersFile() { return playersFile; }
 }
