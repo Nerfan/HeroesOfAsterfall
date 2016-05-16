@@ -1,3 +1,7 @@
+# Any IDE files can be left out; these are just for Intellij IDEA for now
 .idea/
 out/
 *.iml
+
+# The git log doesn't need to be uploaded either
+log.txt
