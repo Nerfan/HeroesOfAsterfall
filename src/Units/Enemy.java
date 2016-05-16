@@ -64,4 +64,9 @@ public class Enemy extends Unit {
                 ", skill: " + this.skill + ", speed: " + this.spd + ", mastery: " + this.mastery +
                 "\n\tEquipped: " + this.equipped.name;
     }
+
+    public String statsToString() {
+        return "str: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense + ", res: " + this. res +
+                ", skill: " + this.skill + ", speed: " + this.spd + ", mastery: " + this.mastery;
+    }
 }

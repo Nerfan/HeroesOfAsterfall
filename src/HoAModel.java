@@ -17,9 +17,6 @@ import java.util.*;
  * @author Jeremy Lefurge
  */
 public class HoAModel extends Observable {
-    /** State of the game (should take the form of a unit name or "main" */
-    private String gameState;
-
     /** Path to the file where the weapons should be read from */
     private String weaponsFile;
     /** Path to the file where the enemies should be read from */
@@ -214,7 +211,6 @@ public class HoAModel extends Observable {
      */
     public void heal(String healerName, String recipientName) {
         Heal.heal(units.get(healerName.toLowerCase()), units.get(recipientName.toLowerCase()));
-        System.out.println("All players restored to full health.");
         setChanged();
         notifyObservers();
     }
@@ -343,12 +339,6 @@ public class HoAModel extends Observable {
         notifyObservers();
     }
 
-    public void setGameState(String gameState) {
-        this.gameState = gameState;
-        setChanged();
-        notifyObservers();
-    }
-
     // Simple getters
 
     /**
@@ -392,6 +382,4 @@ public class HoAModel extends Observable {
      * @return Path to players file
      */
     public String getPlayersFile() { return playersFile; }
-
-    public String getGameState() { return gameState; }
 }
