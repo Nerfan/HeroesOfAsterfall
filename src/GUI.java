@@ -27,14 +27,16 @@ public class GUI extends Application implements Observer{
     /** Connection to the game model */
     private HoAModel model;
 
-    /** Anything that required more than one easy input should be a different mode (e.g. attacking or healing) */
+    /** Anything that requires more than one easy input should be a different mode (e.g. attacking or healing) */
     private enum Mode {
-        ATTACK, HEAL
+        ATTACK,
+        HEAL,
+        MULTITARGET
     }
 
     /** Used to store units to be referenced when combat or heal are called */
     private String unit1, unit2;
-    /** Distance for combat; current unused */
+    /** Distance for combat; currently unused */
     private int distance;
     /** What is happening right now; used while drawing parts of the GUI that could be used for multiple purposes. */
     private Mode mode;
@@ -71,7 +73,7 @@ public class GUI extends Application implements Observer{
         ta.setWrapText(true);
         ta.setMaxWidth(500);
         redirectConsoleTo(ta);
-        HBox temp = new HBox(ta);
+        HBox temp = new HBox(ta); // Just to get proper padding on the right hand side
         temp.setPadding(new Insets(0, 20, 0, 0));
         mainBorder.setLeft(temp);
 
@@ -98,21 +100,28 @@ public class GUI extends Application implements Observer{
 
         VBox players = new VBox(20);
         for (Player player : model.getPlayers().values()) {
+            HBox info = new HBox(10);
             Button button = new Button(player.getName());
             button.setOnAction(e -> drawPlayer(player.getName()));
-            button.setMaxWidth(100);
-            players.getChildren().add(button);
+            button.setPrefWidth(100);
+            Label hp = new Label(player.getHp() + "/" + player.getMaxhp());
+            info.getChildren().addAll(button, hp);
+            players.getChildren().add(info);
         }
         units.getChildren().add(players);
 
         VBox enemies = new VBox(20);
         for (Enemy enemy : model.getEnemies().values()) {
+            HBox info = new HBox(10);
             Button button = new Button(enemy.getName());
             button.setOnAction(e -> drawEnemy(enemy.getName()));
-            button.setMaxWidth(100);
-            enemies.getChildren().add(button);
+            button.setPrefWidth(100);
+            Label hp = new Label(enemy.getHp() + "/" + enemy.getMaxhp());
+            info.getChildren().addAll(button, hp);
+            enemies.getChildren().add(info);
         }
         units.getChildren().add(enemies);
+
         mainBorder.setCenter(units);
     }
 

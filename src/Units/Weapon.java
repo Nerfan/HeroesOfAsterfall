@@ -114,10 +114,10 @@ public class Weapon {
     @Override
     public String toString() {
         return name +
-                ", str=" + str +
-                ", mag=" + mag +
-                ", hit=" + hit +
-                ", durability=" + durability +
-                ", cost=" + cost;
+                "(" + durability + ")" +
+                ": str: " + str +
+                ", mag: " + mag +
+                ", hit: " + hit +
+                ", cost: " + cost;
     }
 }
