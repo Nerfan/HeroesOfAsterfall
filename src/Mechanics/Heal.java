@@ -28,6 +28,9 @@ public class Heal {
             } else if (!healer.hasDurability()) {
                 System.out.println("Error: No durability remaining.");
                 return;
+            } else if (recipient.getHp() == recipient.getMaxhp()) {
+                System.out.println("Error: Recipient already has full HP.");
+                return;
             }
             int heal = healer.getMag();
             switch(healer.getEquipped().getName()) {
