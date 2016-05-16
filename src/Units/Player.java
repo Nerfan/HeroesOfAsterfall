@@ -128,7 +128,6 @@ public class Player extends Unit {
 
     @Override
     public String toString() {
-
         return this.name +
                 "(" + this.hp + "/" + this.maxhp + " hp): Level " + this.level + " " + this.role +
                 " (" + this.xp +  " xp)" +
@@ -143,5 +142,10 @@ public class Player extends Unit {
             printInv += "\n\t\t" + weapon.getValue();
         }
         return ("\tInventory:" + printInv);
+    }
+
+    public String statsToString() {
+        return "str: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense + ", res: " + this. res +
+                ", skill: " + this.skill + ", speed: " + this.spd + ", mastery: " + this.mastery;
     }
 }

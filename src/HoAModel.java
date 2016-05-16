@@ -17,6 +17,8 @@ import java.util.*;
  * @author Jeremy Lefurge
  */
 public class HoAModel extends Observable {
+    /** State of the game (should take the form of a unit name or "main" */
+    private String gameState;
 
     /** Path to the file where the weapons should be read from */
     private String weaponsFile;
@@ -224,7 +226,7 @@ public class HoAModel extends Observable {
      * @param weaponName Name of weapon to switch to
      */
     public void switchWeapon(String playerName, String weaponName) {
-        players.get(playerName).switchWeapon(weaponName);
+        players.get(playerName.toLowerCase()).switchWeapon(weaponName.toLowerCase());
         setChanged();
         notifyObservers();
     }
@@ -341,6 +343,12 @@ public class HoAModel extends Observable {
         notifyObservers();
     }
 
+    public void setGameState(String gameState) {
+        this.gameState = gameState;
+        setChanged();
+        notifyObservers();
+    }
+
     // Simple getters
 
     /**
@@ -384,4 +392,6 @@ public class HoAModel extends Observable {
      * @return Path to players file
      */
     public String getPlayersFile() { return playersFile; }
+
+    public String getGameState() { return gameState; }
 }
