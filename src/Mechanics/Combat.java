@@ -1,5 +1,6 @@
 package Mechanics;
 
+import Units.Player;
 import Units.Unit;
 
 import java.util.Random;
@@ -31,10 +32,19 @@ public class Combat {
                 return;
             }
 
+            // Blademaster ability
+            boolean alreadyHit = false;
+            if (defender instanceof Player) {
+                if (((Player) defender).getRole().equals("Blademaster")) {
+                    damage(defender, attacker);
+                    alreadyHit = true;
+                }
+            }
+
             damage(attacker, defender);
             if (defender.getAttackType().equals("heal") || defender.getHp() <= 0 || !defender.inRange(distance)) {
                 System.out.println("No retaliation from " + defender.getName() + "!");
-            } else {
+            } else if (!alreadyHit) {
                 damage(defender, attacker);
             }
 
@@ -66,6 +76,14 @@ public class Combat {
                 damage = attacker.physDamage() - defender.getDefense();
             } else if (attacker.getAttackType().equals("mag")) {
                 damage  = attacker.magDamage() - defender.getRes();
+            }
+
+            // Blademaster ability
+            if (attacker instanceof Player) {
+                if (((Player) attacker).getRole().equals("Blademaster") && attacker.getSpd() >= defender.getSpd() +5) {
+                    damage *= 2;
+                    System.out.print("Double strike! ");
+                }
             }
 
             // Roll for crit
