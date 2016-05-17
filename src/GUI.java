@@ -46,6 +46,7 @@ public class GUI extends Application implements Observer{
 
     @Override
     public void init() {
+        // TODO This needs to be able to change based on user input
         this.model = new HoAModel("data/players.txt", "data/level1.txt", "data/weapons.txt");
         this.model.addObserver(this);
     }
