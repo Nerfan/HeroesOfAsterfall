@@ -71,11 +71,23 @@ public class Combat {
             System.out.println(attacker.getName() + " missed!");
         } else {
 
-            // Gets the type of attack
+            // Gets the type of attack and calculates damage
             if (attacker.getAttackType().equals("phys")) {
-                damage = attacker.physDamage() - defender.getDefense();
+                if (attacker instanceof Player) {
+                    if (((Player) attacker).getRole().equals("Monk")) {
+                        damage = attacker.physDamage() - (defender.getDefense()/2);
+                    }
+                } else {
+                    damage = attacker.physDamage() - defender.getDefense();
+                }
             } else if (attacker.getAttackType().equals("mag")) {
-                damage  = attacker.magDamage() - defender.getRes();
+                if (attacker instanceof Player) {
+                    if (((Player) attacker).getRole().equals("Monk")) {
+                        damage = attacker.magDamage() - (defender.getRes()/2);
+                    }
+                } else {
+                    damage = attacker.magDamage() - defender.getRes();
+                }
             }
 
             // Blademaster ability

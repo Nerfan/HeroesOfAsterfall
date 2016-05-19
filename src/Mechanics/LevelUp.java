@@ -95,10 +95,12 @@ public class LevelUp {
      * Creates the LevelUp classes for each player role/class
      */
     public static void init() {
+        // Basic classes
         levelUps.put("Acolyte", new LevelUp(50, 10, 80, 70, 50, 20, 70, 10));
         levelUps.put("Adept", new LevelUp(60, 50, 50, 70, 70, 30, 30, 15));
         levelUps.put("Nomad", new LevelUp(65, 60, 20, 75, 75, 40, 25, 10));
         levelUps.put("Hunter", new LevelUp(50, 60, 10, 80, 80, 30, 40, 15));
         levelUps.put("Warrior", new LevelUp(70, 70, 30, 40, 45, 70, 30, 10));
+        // TODO Advanced classes
     }
 }

@@ -103,6 +103,9 @@ public class Player extends Unit {
 
     @Override
     public int getDodge() {
+        if (this.role.equals("Monk")) {
+            return ((2*this.spd) + (this.maxhp - this.hp));
+        }
         return (2*this.spd);
     }
 
