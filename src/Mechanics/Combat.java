@@ -3,6 +3,7 @@ package Mechanics;
 import Units.Player;
 import Units.Unit;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -122,6 +123,76 @@ public class Combat {
                 System.out.print(defender.getName() + " has been killed! ");
                 attacker.increaseXP(2); // Award xp
             }
+        }
+    }
+
+    /**
+     * Marksman ability; deals half damage to up to four targets in range
+     * @param attacker Unit performing hte ability; should be a player of the Marksman class
+     * @param targets  List of units getting hit; max size of 4
+     */
+    public static void multiShot(Unit attacker, List<Unit> targets) {
+        try {
+            if (!((Player) attacker).getRole().equals("Marksman")) {
+                System.out.println("Error: Multi-Shot is a Marksman ability.");
+                return;
+            } else if (targets.size() > 4) {
+                System.out.println("Error: Multi-Shot can hit at most four targets.");
+                return;
+            }
+            int damage = attacker.physDamage() / 2; // TODO is armor applied here or after the halving
+            for (Unit target : targets) {
+                // Make sure the damage is within a valid range
+                int temp = damage - target.getDefense();
+                if (damage < 0) {
+                    temp = 0;
+                } else if (target.getHp() < damage) {
+                    temp = target.getHp();
+                }
+                target.takeDamage(temp);
+                System.out.println(target.getName() + " took " + temp + " damage!");
+            }
+            attacker.useDurability();
+            attacker.increaseXP(1);
+        }
+
+        catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    /**
+     * Marksman ability; deals full damage to two targets in a line
+     * @param attacker Unit attacking; should be a player with the Marksman class
+     * @param targets  Units getting hit
+     */
+    public static void pierce(Unit attacker, List<Unit> targets) {
+        try {
+            if (!((Player) attacker).getRole().equals("Marksman")) {
+                System.out.println("Error: Pierce is a Marksman ability.");
+                return;
+            } else if (targets.size() > 2) {
+                System.out.println("Error: Pierce can hit at most four targets.");
+                return;
+            }
+            int damage = attacker.physDamage();
+            for (Unit target : targets) {
+                // Make sure the damage is within a valid range
+                int temp = damage - target.getDefense();
+                if (damage < 0) {
+                    temp = 0;
+                } else if (target.getHp() < damage) {
+                    temp = target.getHp();
+                }
+                target.takeDamage(temp);
+                System.out.println(target.getName() + " took " + temp + " damage!");
+            }
+            attacker.useDurability();
+            attacker.increaseXP(1);
+        }
+
+        catch (Exception ex) {
+            System.out.println(ex.getMessage());
         }
     }
 }

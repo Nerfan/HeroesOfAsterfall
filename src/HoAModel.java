@@ -245,6 +245,38 @@ public class HoAModel extends Observable {
         notifyObservers();
     }
 
+    /**
+     * Marksman ability; deal half damage to up to four targets in range
+     * @param attackerName Name of Marksman
+     * @param targetNames  List of names of targets
+     */
+    public void pierce(String attackerName, List<String> targetNames) {
+        Unit attacker = units.get(attackerName.toLowerCase());
+        List<Unit> targets = new ArrayList<>();
+        for (String name : targetNames) {
+            targets.add(units.get(name.toLowerCase()));
+        }
+        Combat.pierce(attacker, targets);
+        setChanged();
+        notifyObservers();
+    }
+
+    /**
+     * Marksman ability; deal full damage to two targets in a line
+     * @param attackerName Name of Marksman
+     * @param targetNames  List of names of targets
+     */
+    public void multiShot(String attackerName, List<String> targetNames) {
+        Unit attacker = units.get(attackerName.toLowerCase());
+        List<Unit> targets = new ArrayList<>();
+        for (String name : targetNames) {
+            targets.add(units.get(name.toLowerCase()));
+        }
+        Combat.multiShot(attacker, targets);
+        setChanged();
+        notifyObservers();
+    }
+
     // End class abilities
 
     /**
