@@ -115,6 +115,7 @@ public class Combat {
             defender.takeDamage(damage);
             System.out.print(attacker.getName() + " dealt " + damage + " damage to " + defender.getName() + "! ");
             attacker.increaseXP(1); // Award xp
+            attacker.useDurability();
 
             // If the defender dies
             if (defender.getHp() == 0) {

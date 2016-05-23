@@ -37,6 +37,11 @@ public class Enemy extends Unit {
     }
 
     @Override
+    public void useDurability() {
+        // Does nothing
+    }
+
+    @Override
     public int physDamage() {
         return str;
     }

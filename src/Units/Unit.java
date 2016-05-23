@@ -85,6 +85,11 @@ public abstract class Unit {
     public abstract boolean hasDurability();
 
     /**
+     * Uses one durability point of the currently equipped weapon if the unit is a player. Does nothing for enemies.
+     */
+    public abstract void useDurability();
+
+    /**
      * Checks if a unit is in range to attack with their currently equipped weapon
      * @param distance  Distance of attack
      * @return  True if they can attack, false if they cannot

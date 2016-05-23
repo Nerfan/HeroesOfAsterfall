@@ -52,6 +52,11 @@ public class Player extends Unit {
         return (this.equipped.durability > 0);
     }
 
+    @Override
+    public void useDurability() {
+        this.equipped.durability -= 1;
+    }
+
     /**
      * Increases xp by a set amount,
      * prints a string saying that xp has gone up,
@@ -86,13 +91,11 @@ public class Player extends Unit {
 
     @Override
     public int physDamage() {
-        this.equipped.durability -= 1;
         return (this.str+this.equipped.str);
     }
 
     @Override
     public int magDamage() {
-        this.equipped.durability -= 1;
         return (this.mag+this.equipped.mag);
     }
 
@@ -105,8 +108,9 @@ public class Player extends Unit {
     public int getDodge() {
         if (this.role.equals("Monk")) {
             return ((2*this.spd) + (this.maxhp - this.hp));
+        } else {
+            return (2 * this.spd);
         }
-        return (2*this.spd);
     }
 
     public String getRole() {

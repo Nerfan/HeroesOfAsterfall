@@ -60,6 +60,7 @@ public class Heal {
             System.out.print(recipient.getName() + " was healed for " + heal + " hp by " + healer.getName() + "!");
             System.out.print(" " + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp. ");
             healer.increaseXP(1);
+            healer.useDurability();
         }
 
         catch(Exception ex) {
@@ -123,6 +124,7 @@ public class Heal {
                 System.out.print(" " + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp. ");
             }
             healer.increaseXP(1);
+            healer.useDurability();
         }
 
         catch(Exception ex) {
