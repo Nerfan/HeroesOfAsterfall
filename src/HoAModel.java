@@ -227,6 +227,26 @@ public class HoAModel extends Observable {
         notifyObservers();
     }
 
+    // Class abilities
+
+    /**
+     * Saint ability: heal two other units at the same time for half as much as normal
+     * @param healerName     Name of healer, should be of Saint class
+     * @param recipientNames List of names of recipients; should have a size of 2
+     */
+    public void linkHeal(String healerName, List<String> recipientNames) {
+        Unit healer = units.get(healerName.toLowerCase());
+        List<Unit> recipients = new ArrayList<>();
+        for (String name : recipientNames) {
+            recipients.add(units.get(name.toLowerCase()));
+        }
+        Heal.linkHeal(healer, recipients);
+        setChanged();
+        notifyObservers();
+    }
+
+    // End class abilities
+
     /**
      * Returns a string listing all of the players and their health
      *
