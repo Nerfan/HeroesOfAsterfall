@@ -1,6 +1,5 @@
 package Mechanics;
 
-import Units.Player;
 import Units.Unit;
 
 import java.util.List;
@@ -35,14 +34,13 @@ public class Combat {
 
             // Blademaster ability
             boolean alreadyHit = false;
-            if (defender instanceof Player) {
-                if (((Player) defender).getRole().equals("Blademaster")) {
-                    damage(defender, attacker);
-                    alreadyHit = true;
-                }
+            if (defender.isRole("Blademaster")) {
+                damage(defender, attacker);
+                alreadyHit = true;
             }
 
             damage(attacker, defender);
+
             if (defender.getAttackType().equals("heal") || defender.getHp() <= 0 || !defender.inRange(distance)) {
                 System.out.println("No retaliation from " + defender.getName() + "!");
             } else if (!alreadyHit) {
@@ -63,7 +61,7 @@ public class Combat {
      * @param attacker  The unit dealing damage
      * @param defender  The unit taking damage
      */
-    public static void damage(Unit attacker, Unit defender) {
+    private static void damage(Unit attacker, Unit defender) {
         Random rng = new Random();  // Initialize the rng
         int roll = rng.nextInt(100) + 1;
         int damage = 0;             // Initialize the damage number
@@ -74,42 +72,32 @@ public class Combat {
 
             // Gets the type of attack and calculates damage
             if (attacker.getAttackType().equals("phys")) {
-                if (attacker instanceof Player) {
-                    if (((Player) attacker).getRole().equals("Monk")) {
-                        damage = attacker.physDamage() - (defender.getDefense()/2);
-                    }
+                if (attacker.isRole("Monk")) {
+                    damage = attacker.physDamage() - (defender.getDefense()/2);
                 } else {
                     damage = attacker.physDamage() - defender.getDefense();
                 }
             } else if (attacker.getAttackType().equals("mag")) {
-                if (attacker instanceof Player) {
-                    if (((Player) attacker).getRole().equals("Monk")) {
-                        damage = attacker.magDamage() - (defender.getRes()/2);
-                    }
+                if (attacker.isRole("Monk")) {
+                    damage = attacker.magDamage() - (defender.getRes()/2);
                 } else {
                     damage = attacker.magDamage() - defender.getRes();
                 }
             }
 
             // Blademaster ability
-            if (attacker instanceof Player) {
-                if (((Player) attacker).getRole().equals("Blademaster") && attacker.getSpd() >= defender.getSpd() +5) {
-                    damage *= 2;
-                    System.out.print("Double strike! ");
-                }
+            if (attacker.isRole("Blademaster") && (attacker.getSpd() >= defender.getSpd()+5)) {
+                damage *= 2;
+                System.out.print("Double strike! ");
             }
 
             // Roll for crit
             if (roll < attacker.getMastery()) {
                 damage *= 3;
                 System.out.print("Critical hit! ");
-            } else if (attacker instanceof Player) {
-                if (((Player) attacker).getRole().equals("Gladiator")) {
-                    if (roll < attacker.getMastery()*1.3) {
-                        damage *= 3;
-                        System.out.print("Critical hit! ");
-                    }
-                }
+            } else if (attacker.isRole("Gladiator") && (roll < attacker.getMastery()*1.3)) {
+                damage *= 3;
+                System.out.print("Critical hit! ");
             }
 
             // Make sure damage is not less than 0 or more than the remaining health of the defender
@@ -140,7 +128,7 @@ public class Combat {
      */
     public static void multiShot(Unit attacker, List<Unit> targets) {
         try {
-            if (!((Player) attacker).getRole().equals("Marksman")) {
+            if (!attacker.isRole("Marksman")) {
                 System.out.println("Error: Multi-Shot is a Marksman ability.");
                 return;
             } else if (targets.size() > 4) {
@@ -175,7 +163,7 @@ public class Combat {
      */
     public static void pierce(Unit attacker, List<Unit> targets) {
         try {
-            if (!((Player) attacker).getRole().equals("Marksman")) {
+            if (!attacker.isRole("Marksman")) {
                 System.out.println("Error: Pierce is a Marksman ability.");
                 return;
             } else if (targets.size() > 2) {
