@@ -85,9 +85,17 @@ public abstract class Unit {
     public abstract boolean hasDurability();
 
     /**
-     * Uses one durability point of the currently equipped weapon if the unit is a player. Does nothing for enemies.
+     * Uses durability of the currently equipped weapon if the unit is a player. Does nothing for enemies.
+     * @param uses Number of uses to subtract from the durability
      */
-    public abstract void useDurability();
+    public abstract void useDurability(int uses);
+
+    /**
+     * Default use case for durability use is 1
+     */
+    public void useDurability() {
+        this.useDurability(1);
+    }
 
     /**
      * Checks if a unit is in range to attack with their currently equipped weapon

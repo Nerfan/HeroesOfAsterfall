@@ -37,7 +37,7 @@ public class Enemy extends Unit {
     }
 
     @Override
-    public void useDurability() {
+    public void useDurability(int uses) {
         // Does nothing
     }
 

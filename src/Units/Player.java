@@ -53,8 +53,8 @@ public class Player extends Unit {
     }
 
     @Override
-    public void useDurability() {
-        this.equipped.durability -= 1;
+    public void useDurability(int uses) {
+        this.equipped.durability -= uses;
     }
 
     /**
