@@ -103,6 +103,13 @@ public class Combat {
             if (roll < attacker.getMastery()) {
                 damage *= 3;
                 System.out.print("Critical hit! ");
+            } else if (attacker instanceof Player) {
+                if (((Player) attacker).getRole().equals("Gladiator")) {
+                    if (roll < attacker.getMastery()*1.3) {
+                        damage *= 3;
+                        System.out.print("Critical hit! ");
+                    }
+                }
             }
 
             // Make sure damage is not less than 0 or more than the remaining health of the defender
