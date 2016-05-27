@@ -1,6 +1,5 @@
 package Mechanics;
 
-import Units.Player;
 import Units.Unit;
 
 import java.util.List;
@@ -45,12 +44,10 @@ public class Heal {
                     heal += 20;
                     break;
             }
-            if (healer instanceof Player) {
-                if (((Player) healer).getRole().equals("Saint")) {
-                    Random rng = new Random();
-                    if (rng.nextInt(100) <= healer.getMastery()) {
-                        heal *= 3;
-                    }
+            if (healer.isRole("Saint")) {
+                Random rng = new Random();
+                if (rng.nextInt(100) < healer.getMastery()) {
+                    heal *= 3;
                 }
             }
             if (heal > (recipient.getMaxhp() - recipient.getHp())) {
@@ -78,7 +75,7 @@ public class Heal {
             if (!healer.getAttackType().equals("heal")) {
                 System.out.println("Error: Healing item not equipped.");
                 return;
-            } else if (!((Player) healer).getRole().equals("Saint")) {
+            } else if (!healer.isRole("Saint")) {
                 System.out.println("Error: Link Heal is a Saint ability.");
                 return;
             } else if (healer.getHp() <= 0) {

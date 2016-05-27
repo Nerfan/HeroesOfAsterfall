@@ -106,6 +106,20 @@ public abstract class Unit {
         return this.equipped.inRange(distance);
     }
 
+    /**
+     * Checks a unit to see if it fits a specific role/class
+     * @param role Name of the role to check (e.g. Marksman, Adept)
+     * @return true if the unit is a player and has that role, false otherwise
+     */
+    public boolean isRole(String role) {
+        if (this instanceof Player) {
+            if (((Player) this).role.equals(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     // Simple getters and setters
 
