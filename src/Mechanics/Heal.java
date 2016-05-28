@@ -48,6 +48,7 @@ public class Heal {
                 Random rng = new Random();
                 if (rng.nextInt(100) < healer.getMastery()) {
                     heal *= 3;
+                    System.out.print("Critical heal! ");
                 }
             }
             if (heal > (recipient.getMaxhp() - recipient.getHp())) {
@@ -110,15 +111,16 @@ public class Heal {
                 }
                 heal /= 2; // Link heal, so only half the amount
                 Random rng = new Random();
-                if (rng.nextInt(100) <= healer.getMastery()) {
+                if (rng.nextInt(100) < healer.getMastery()) {
                     heal *= 3;
+                    System.out.print("Critical heal! ");
                 }
                 if (heal > (recipient.getMaxhp() - recipient.getHp())) {
                     heal = (recipient.getMaxhp() - recipient.getHp());
                 }
                 recipient.setHp(recipient.getHp() + heal);
                 System.out.print(recipient.getName() + " was healed for " + heal + " hp by " + healer.getName() + "!");
-                System.out.print(" " + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp. ");
+                System.out.println(" " + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp. ");
             }
             healer.increaseXP(1);
             healer.useDurability();

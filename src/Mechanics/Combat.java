@@ -63,7 +63,7 @@ public class Combat {
      */
     private static void damage(Unit attacker, Unit defender) {
         Random rng = new Random();  // Initialize the rng
-        int roll = rng.nextInt(100) + 1;
+        int roll = rng.nextInt(100);
         int damage = 0;             // Initialize the damage number
 
         if (roll > (attacker.getAccuracy())-defender.getDodge()) { // Miss chance
@@ -100,11 +100,14 @@ public class Combat {
                 System.out.print("Critical hit! ");
             }
 
+            // Paladin ability
+            if (rng.nextInt(100) < 30) {
+                damage /= 2;
+            }
+
             // Make sure damage is not less than 0 or more than the remaining health of the defender
             if (damage < 0) {
                 damage = 0;
-            } else if (defender.getHp() < damage) {
-                damage = defender.getHp();
             }
 
             // Actually deal the damage
