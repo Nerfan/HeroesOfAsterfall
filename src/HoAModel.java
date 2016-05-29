@@ -277,6 +277,18 @@ public class HoAModel extends Observable {
         notifyObservers();
     }
 
+    public void adaptability(String attackerName, String defenderName, int distance, List<String> adjacentNames) {
+        Unit attacker = units.get(attackerName.toLowerCase());
+        Unit defender = units.get(defenderName.toLowerCase());
+        ArrayList<Unit> adjacent = new ArrayList<>();
+        for (String name : adjacentNames) {
+            adjacent.add(units.get(name.toLowerCase()));
+        }
+        Combat.adaptability(attacker, defender, distance, adjacent);
+        setChanged();
+        notifyObservers();
+    }
+
     // End class abilities
 
     /**

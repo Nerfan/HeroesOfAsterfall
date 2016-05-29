@@ -123,6 +123,34 @@ public abstract class Unit {
         return false;
     }
 
+    /**
+     * Returns the string representing the unit's highest stat
+     * Used for adaptability and not much else
+     * @return Short-form name of the highest stat (e.g. str, mag, res)
+     */
+    public String getHighestStat() {
+        // Default to strength; then take whatever is higher (only replaces if higher; ties leave the first one)
+        String highest = "str";
+        if (this.mag > this.str) {
+            highest  ="mag";
+        }
+        if (this.skill > this.mag) {
+            highest  ="skill";
+        }
+        if (this.spd > this.skill) {
+            highest  ="spd";
+        }
+        if (this.defense > this.spd) {
+            highest  ="defense";
+        }
+        if (this.res > this.defense) {
+            highest  ="res";
+        }
+        if (this.mastery > this.res) {
+            highest  ="mastery";
+        }
+        return highest;
+    }
 
     // Simple getters and setters
 

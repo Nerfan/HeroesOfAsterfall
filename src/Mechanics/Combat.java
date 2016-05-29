@@ -2,6 +2,7 @@ package Mechanics;
 
 import Units.Unit;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -187,6 +188,95 @@ public class Combat {
             }
             attacker.useDurability();
             attacker.increaseXP(1);
+        }
+
+        catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    /**
+     * Strategist ability; increases stats based on surrounding allies and then attacks
+     * For each adjacent ally, the Strategist gains a temporary boost of 5 points in that ally's highest stat
+     * TODO This can eventually be worked straight into the combat method
+     * @param attacker Unit attacking; should be a Player of the Strategist class
+     * @param defender Unit defending
+     * @param distance Distance between attacker and defender
+     * @param adjacent Any adjacent allies
+     */
+    public static void adaptability(Unit attacker, Unit defender, int distance, List<Unit> adjacent) {
+        try {
+            if (attacker.getAttackType().equals("heal")) { // Check for healing item
+                System.out.println("Error: Healing item equipped");
+                return;
+            } else if (attacker.getHp() <= 0) { // Make sure the attacker is alive
+                System.out.println(attacker.getName() + " is dead!");
+                return;
+            } else if (defender.getHp() <= 0) { // Make sure the defender is alive
+                System.out.println(defender.getName() + " is dead!");
+                return;
+            } else if (!attacker.inRange(distance)) {
+                System.out.println("Out of range!");
+                return;
+            } else if (!attacker.isRole("Strategist")) {
+                System.out.println("Error: Adaptability is a Strategist ability.");
+                return;
+            }
+            ArrayList<String> maxStats = new ArrayList<>();
+            for (Unit ally : adjacent) {
+                maxStats.add(ally.getHighestStat());
+            }
+            for (String stat : maxStats) {
+                switch (stat) {
+                    case "str":
+                        attacker.setStr(attacker.getStr() + 5);
+                        break;
+                    case "mag":
+                        attacker.setMag(attacker.getMag() + 5);
+                        break;
+                    case "skill":
+                        attacker.setSkill(attacker.getSkill() + 5);
+                        break;
+                    case "spd":
+                        attacker.setSpd(attacker.getSpd() + 5);
+                        break;
+                    case "defense":
+                        attacker.setDefense(attacker.getDefense() + 5);
+                        break;
+                    case "res":
+                        attacker.setRes(attacker.getRes() + 5);
+                        break;
+                    case "mastery":
+                        attacker.setMastery(attacker.getMastery() + 5);
+                        break;
+                }
+            }
+            combat(attacker, defender, distance);
+            for (String stat : maxStats) {
+                switch (stat) {
+                    case "str":
+                        attacker.setStr(attacker.getStr() - 5);
+                        break;
+                    case "mag":
+                        attacker.setMag(attacker.getMag() - 5);
+                        break;
+                    case "skill":
+                        attacker.setSkill(attacker.getSkill() - 5);
+                        break;
+                    case "spd":
+                        attacker.setSpd(attacker.getSpd() - 5);
+                        break;
+                    case "defense":
+                        attacker.setDefense(attacker.getDefense() - 5);
+                        break;
+                    case "res":
+                        attacker.setRes(attacker.getRes() - 5);
+                        break;
+                    case "mastery":
+                        attacker.setMastery(attacker.getMastery() - 5);
+                        break;
+                }
+            }
         }
 
         catch (Exception ex) {
