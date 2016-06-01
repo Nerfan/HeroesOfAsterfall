@@ -3,6 +3,7 @@ import Units.Player;
 import Units.Weapon;
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -43,6 +44,7 @@ public class GUI extends Application implements Observer{
 
     /** GUI Components */
     private BorderPane mainBorder;
+    private Label turnCount;
 
     @Override
     public void init() {
@@ -68,7 +70,7 @@ public class GUI extends Application implements Observer{
         // The top-most node; everything else in the GUI should go under here
         mainBorder = new BorderPane();
 
-        // Creates a TextArea that echoes standard output (probably temporary)
+        // Creates a TextArea that echoes standard output
         TextArea ta = new TextArea();
         ta.setEditable(false);
         ta.setWrapText(true);
@@ -83,11 +85,15 @@ public class GUI extends Application implements Observer{
 
          // Right side
         VBox buttons = new VBox(25);
+        turnCount = new Label("PLAYER Phase\nTurn 1");
+        turnCount.setFont(new Font("Arial", 40));
+        Button endTurn = new Button("End Turn");
+        endTurn.setOnAction(e -> model.nextPhase());
         Button save = new Button("Save");
         save.setOnAction(e -> model.save());
         Button healAll = new Button("Heal All");
         healAll.setOnAction(e -> model.healAll());
-        buttons.getChildren().addAll(save, healAll);
+        buttons.getChildren().addAll(turnCount, endTurn, save, healAll);
         mainBorder.setRight(buttons);
 
         return new Scene(mainBorder);
@@ -173,7 +179,14 @@ public class GUI extends Application implements Observer{
 
         buttons.getChildren().addAll(attack, heal, back);
 
-        display.getChildren().addAll(name, hp, stats, equipped, inventory, buttons);
+        display.getChildren().addAll(name, hp, stats, equipped);
+
+        // Add stuff for actions only if the player is able to take an action
+        if (player.hasTurn()) {
+            display.getChildren().addAll(inventory, buttons);
+        } else {
+            display.getChildren().add(back);
+        }
         mainBorder.setCenter(display);
     }
 
@@ -217,7 +230,15 @@ public class GUI extends Application implements Observer{
 
         buttons.getChildren().addAll(attack, heal, back);
 
-        display.getChildren().addAll(name, hp, stats, equipped, buttons);
+        display.getChildren().addAll(name, hp, stats, equipped);
+
+        // Only add actions if the enemy can take an action
+        if (enemy.hasTurn()) {
+            display.getChildren().addAll(buttons);
+        } else {
+            display.getChildren().add(back);
+        }
+
         mainBorder.setCenter(display);
     }
 
@@ -296,8 +317,9 @@ public class GUI extends Application implements Observer{
 
     @Override
     public void update(Observable observable, Object o) {
-        // Whenever anything chenges in the model, we can return to the main screen (all units displayed)
+        // Whenever anything changes in the model, we can return to the main screen (all units displayed)
         drawMain();
+        turnCount.setText(model.getPhase() + " Phase\n Turn " + model.getTurnCount());
     }
 
     private static void redirectConsoleTo(TextArea textArea) {

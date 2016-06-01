@@ -37,6 +37,7 @@ public abstract class Unit {
         this.mastery = mastery;
         this.equipped = equipped;
         this.blinded = false;
+        this.actionable = false;
     }
 
     /**
@@ -77,6 +78,14 @@ public abstract class Unit {
      */
     public void newTurn() {
         this.actionable = true;
+    }
+
+    /**
+     * Tells whether or not the unit still has an action left for this turn
+     * @return True if actionable, false otherwise
+     */
+    public boolean hasTurn() {
+        return this.actionable;
     }
 
     /**

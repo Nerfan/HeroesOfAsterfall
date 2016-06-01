@@ -21,6 +21,7 @@ public class HoAModel extends Observable {
         PLAYER, ENEMY
     }
     private Phase phase;
+    private int turncount;
     /** Path to the file where the weapons should be read from */
     private String weaponsFile;
     /** Path to the file where the enemies should be read from */
@@ -51,6 +52,8 @@ public class HoAModel extends Observable {
         this.weaponsFile = weaponsFile;
         this.enemiesFile = enemiesFile;
         this.playersFile = playersFile;
+        this.phase = Phase.ENEMY;
+        this.turncount = 0;
 
         // Initializes all of these as empty TreeMaps
         this.enemies = new TreeMap<>();
@@ -177,7 +180,7 @@ public class HoAModel extends Observable {
             for (Map.Entry<String, Enemy> entry : this.enemies.entrySet()) {
                 this.units.put(entry.getKey(), entry.getValue());
             }
-            this.phase = Phase.PLAYER;
+            this.nextPhase(); // Starts the first player phase
         }
 
 
@@ -196,6 +199,37 @@ public class HoAModel extends Observable {
     }
 
     /**
+     * Advances the game to the next phase
+     */
+    public void nextPhase() {
+        switch (this.phase) {
+            case ENEMY:
+                this.phase = Phase.PLAYER;
+                players.values().forEach(Unit::newTurn);
+                this.turncount++;
+                break;
+            case PLAYER:
+                this.phase = Phase.ENEMY;
+                players.values().forEach(Unit::newTurn);
+                break;
+        }
+        setChanged();
+        notifyObservers();
+    }
+
+    /**
+     * Tells how many turns have passed
+     * @return the turn count
+     */
+    public int getTurnCount() {
+        return this.turncount;
+    }
+
+    public Phase getPhase() {
+        return this.phase;
+    }
+
+    /**
      * Calls for combat between two units
      *
      * @param attackerName Name of the attacker
@@ -204,6 +238,7 @@ public class HoAModel extends Observable {
      */
     public void combat(String attackerName, String defenderName, int distance) {
         Combat.combat(units.get(attackerName.toLowerCase()), units.get(defenderName.toLowerCase()), distance);
+        units.get(attackerName.toLowerCase()).takeTurn();
         setChanged();
         notifyObservers();
     }
@@ -216,6 +251,7 @@ public class HoAModel extends Observable {
      */
     public void heal(String healerName, String recipientName) {
         Heal.heal(units.get(healerName.toLowerCase()), units.get(recipientName.toLowerCase()));
+        units.get(healerName.toLowerCase()).takeTurn();
         setChanged();
         notifyObservers();
     }
@@ -246,6 +282,7 @@ public class HoAModel extends Observable {
             recipients.add(units.get(name.toLowerCase()));
         }
         Heal.linkHeal(healer, recipients);
+        healer.takeTurn();
         setChanged();
         notifyObservers();
     }
@@ -262,6 +299,7 @@ public class HoAModel extends Observable {
             targets.add(units.get(name.toLowerCase()));
         }
         Combat.pierce(attacker, targets);
+        attacker.takeTurn();
         setChanged();
         notifyObservers();
     }
@@ -278,6 +316,7 @@ public class HoAModel extends Observable {
             targets.add(units.get(name.toLowerCase()));
         }
         Combat.multiShot(attacker, targets);
+        attacker.takeTurn();
         setChanged();
         notifyObservers();
     }
@@ -290,6 +329,7 @@ public class HoAModel extends Observable {
             adjacent.add(units.get(name.toLowerCase()));
         }
         Combat.adaptability(attacker, defender, distance, adjacent);
+        attacker.takeTurn();
         setChanged();
         notifyObservers();
     }
@@ -298,6 +338,7 @@ public class HoAModel extends Observable {
         Unit attacker = units.get(attackerName.toLowerCase());
         Unit defender = units.get(defenderName.toLowerCase());
         Combat.backstab(attacker, defender, distance);
+        attacker.takeTurn();
         setChanged();
         notifyObservers();
     }
@@ -309,6 +350,7 @@ public class HoAModel extends Observable {
             targets.add(units.get(name.toLowerCase()));
         }
         Combat.supernova(attacker, targets);
+        attacker.takeTurn();
         setChanged();
         notifyObservers();}
 
