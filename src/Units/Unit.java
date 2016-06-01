@@ -18,6 +18,7 @@ public abstract class Unit {
     protected int mastery;  // Percent chance to crit
     protected Weapon equipped;
     protected boolean blinded; // For sorcerer light tome ability
+    protected boolean actionable;
 
     /**
      * Constructor, all parameters are explained in subclasses
@@ -62,6 +63,20 @@ public abstract class Unit {
 
     public void blind() {
         this.blinded = true;
+    }
+
+    /**
+     * To be used whenever a unit takes an action; marks them as unable to go again on this turn
+     */
+    public void takeTurn() {
+        this.actionable = false;
+    }
+
+    /**
+     * To be used when a new turn starts; marks a unit as able to take another action
+     */
+    public void newTurn() {
+        this.actionable = true;
     }
 
     /**

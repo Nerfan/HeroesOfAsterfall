@@ -17,6 +17,10 @@ import java.util.*;
  * @author Jeremy Lefurge
  */
 public class HoAModel extends Observable {
+    private enum Phase {
+        PLAYER, ENEMY
+    }
+    private Phase phase;
     /** Path to the file where the weapons should be read from */
     private String weaponsFile;
     /** Path to the file where the enemies should be read from */
@@ -173,6 +177,7 @@ public class HoAModel extends Observable {
             for (Map.Entry<String, Enemy> entry : this.enemies.entrySet()) {
                 this.units.put(entry.getKey(), entry.getValue());
             }
+            this.phase = Phase.PLAYER;
         }
 
 
