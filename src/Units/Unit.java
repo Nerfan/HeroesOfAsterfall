@@ -17,6 +17,7 @@ public abstract class Unit {
     protected int res;      // Decreases magic damage 1:1
     protected int mastery;  // Percent chance to crit
     protected Weapon equipped;
+    protected boolean blinded; // For sorcerer light tome ability
 
     /**
      * Constructor, all parameters are explained in subclasses
@@ -34,13 +35,33 @@ public abstract class Unit {
         this.res = res;
         this.mastery = mastery;
         this.equipped = equipped;
+        this.blinded = false;
     }
 
+    /**
+     * Decreases the unit's health by an amount, never below 0
+     * @param damage Amount to decrease health by
+     */
     public void takeDamage(int damage) {
         this.hp -= damage;
         if (this.hp < 0) {
             this.hp = 0;
         }
+    }
+
+    /**
+     * Increases the unit's health by a set amount, never over max
+     * @param heal Amount to increase health by
+     */
+    public void heal(int heal) {
+        this.hp += heal;
+        if (this.hp > this.maxhp) {
+            this.hp = this.maxhp;
+        }
+    }
+
+    public void blind() {
+        this.blinded = true;
     }
 
     /**

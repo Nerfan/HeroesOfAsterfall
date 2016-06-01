@@ -54,9 +54,15 @@ public class Heal {
             if (heal > (recipient.getMaxhp() - recipient.getHp())) {
                 heal = (recipient.getMaxhp() - recipient.getHp());
             }
-            recipient.setHp(recipient.getHp() + heal);
+            recipient.heal(heal);
             System.out.print(recipient.getName() + " was healed for " + heal + " hp by " + healer.getName() + "!");
             System.out.print(" " + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp. ");
+
+            if (healer.isRole("Sorcerer") && healer.getEquipped().getName().equals("Water Tome")) {
+                healer.heal(heal/2);
+                System.out.println(healer.getName()  +" also healed for " + heal/2 + ". ");
+            }
+
             healer.increaseXP(1);
             healer.useDurability();
         }

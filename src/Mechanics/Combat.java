@@ -58,11 +58,25 @@ public class Combat {
     }
 
     /**
-     * Deals the damage to units
-     * @param attacker  The unit dealing damage
-     * @param defender  The unit taking damage
+     * Default case for damage; multiplier of 1
+     * @param attacker Unit dealing damage
+     * @param defender Unit taking damage
      */
     private static void damage(Unit attacker, Unit defender) {
+        damage(attacker, defender, 1, true, true);
+    }
+
+    private static void damage(Unit attacker, Unit defender, double multiplier) {
+        damage(attacker, defender, multiplier, true, true);
+    }
+
+    /**
+     * Deals the damage to units
+     * @param attacker Unit dealing damage
+     * @param defender Unit taking damage
+     * @param multiplier For anytime nonstandard damage is dealt (e.g. a backstab has a 2x multiplier)
+     */
+    private static void damage(Unit attacker, Unit defender, double multiplier, boolean xpGain, boolean durabilityUse) {
         Random rng = new Random();  // Initialize the rng
         int roll = rng.nextInt(100);
         int damage = 0;             // Initialize the damage number
@@ -106,16 +120,36 @@ public class Combat {
                 damage /= 2;
             }
 
-            // Make sure damage is not less than 0 or more than the remaining health of the defender
+            // Make sure damage is not less than 0
             if (damage < 0) {
                 damage = 0;
             }
 
+            // Multiply the damage by the multiplier
+            damage *= multiplier;
+
             // Actually deal the damage
             defender.takeDamage(damage);
             System.out.print(attacker.getName() + " dealt " + damage + " damage to " + defender.getName() + "! ");
-            attacker.increaseXP(1); // Award xp
-            attacker.useDurability();
+
+            // Sorcerer abilities
+            if (attacker.isRole("Sorcerer") && attacker.getEquipped().getName().equals("Dark Tome")) {
+                attacker.heal(damage/2);
+                System.out.print(attacker.getName() + " absorbed " + damage/2 + "health. ");
+            } else if (attacker.isRole("Sorcerer") && attacker.getEquipped().getName().equals("Light Tome")) {
+                defender.blind();
+                System.out.print(defender.getName() + " was blinded! ");
+            }
+
+            // Award xp
+            if (xpGain) {
+                attacker.increaseXP(1);
+            } else {
+                System.out.println(); // Substitute for the new line in the increaseXP method
+            }
+            if (durabilityUse) {
+                attacker.useDurability();
+            }
 
             // If the defender dies
             if (defender.getHp() == 0) {
@@ -139,17 +173,8 @@ public class Combat {
                 System.out.println("Error: Multi-Shot can hit at most four targets.");
                 return;
             }
-            int damage = attacker.physDamage() / 2; // TODO is armor applied here or after the halving
             for (Unit target : targets) {
-                // Make sure the damage is within a valid range
-                int temp = damage - target.getDefense();
-                if (damage < 0) {
-                    temp = 0;
-                } else if (target.getHp() < damage) {
-                    temp = target.getHp();
-                }
-                target.takeDamage(temp);
-                System.out.println(target.getName() + " took " + temp + " damage!");
+                damage(attacker, target, 0.5, false, false);
             }
             attacker.useDurability();
             attacker.increaseXP(1);
@@ -174,17 +199,8 @@ public class Combat {
                 System.out.println("Error: Pierce can hit at most four targets.");
                 return;
             }
-            int damage = attacker.physDamage();
             for (Unit target : targets) {
-                // Make sure the damage is within a valid range
-                int temp = damage - target.getDefense();
-                if (damage < 0) {
-                    temp = 0;
-                } else if (target.getHp() < damage) {
-                    temp = target.getHp();
-                }
-                target.takeDamage(temp);
-                System.out.println(target.getName() + " took " + temp + " damage!");
+                damage(attacker, target, 1, false, false);
             }
             attacker.useDurability();
             attacker.increaseXP(1);
@@ -281,6 +297,75 @@ public class Combat {
 
         catch (Exception ex) {
             System.out.println(ex.getMessage());
+        }
+    }
+
+    /**
+     * Assassin ability; deals double damage from behind (no current way to check for position)
+     * @param attacker Unit attacking; should be a player of the assassin class
+     * @param defender Unit being hit
+     * @param distance Distance between units
+     */
+    public static void backstab(Unit attacker, Unit defender, int distance) {
+        try {
+            if (attacker.getAttackType().equals("heal")) { // Check for healing item
+                System.out.println("Error: Healing item equipped");
+                return;
+            } else if (attacker.getHp() <= 0) { // Make sure the attacker is alive
+                System.out.println(attacker.getName() + " is dead!");
+                return;
+            } else if (defender.getHp() <= 0) { // Make sure the defender is alive
+                System.out.println(defender.getName() + " is dead!");
+                return;
+            } else if (!attacker.inRange(distance)) {
+                System.out.println("Out of range!");
+                return;
+            } else if (!attacker.isRole("Assassin")) {
+                System.out.println("Error: Backstab is an Assassin ability");
+                return;
+            }
+
+            damage(attacker, defender, 2);
+
+            if (defender.getAttackType().equals("heal") || defender.getHp() <= 0 || !defender.inRange(distance)) {
+                System.out.println("No retaliation from " + defender.getName() + "!");
+            } else {
+                damage(defender, attacker);
+            }
+
+            System.out.println(attacker.getName() + " has " + attacker.getHp() + " hp remaining.");
+            System.out.println(defender.getName() + " has " + defender.getHp() + " hp remaining.");
+        }
+
+        catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+    }
+
+    public static void supernova(Unit attacker, List<Unit> targets) {
+        try {
+            if (!attacker.isRole("Sorcerer")) {
+                System.out.println("Error: Supernova is a Sorcerer ability.");
+                return;
+            } else if (!attacker.getEquipped().getName().equals("Fire Tome")) {
+                System.out.println("Error: Fire Tome not equipped.");
+                return;
+            } else if (attacker.getHp() <= 0) { // Make sure the attacker is alive
+                System.out.println(attacker.getName() + " is dead!");
+                return;
+            } else if (targets.size() > 9) {
+                System.out.println("Too many targets.");
+                return;
+            }
+            for (Unit target : targets) {
+                damage(attacker, target, 0.5, false, false);
+            }
+            attacker.useDurability(3);
+            attacker.increaseXP(1);
+        }
+
+        catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 }

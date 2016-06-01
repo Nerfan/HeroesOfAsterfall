@@ -101,13 +101,19 @@ public class Player extends Unit {
 
     @Override
     public int getAccuracy() {
-        return (this.skill + this.equipped.hit);
+        if (blinded) {
+            return (this.skill + this.equipped.hit)*4/5;
+        } else {
+            return (this.skill + this.equipped.hit);
+        }
     }
 
     @Override
     public int getDodge() {
         if (this.role.equals("Monk")) {
             return ((2*this.spd) + (this.maxhp - this.hp));
+        } else if (this.role.equals("Sorcerer") && this.equipped.name.equals("Wind Tome")) {
+            return (4 * this.spd);
         } else {
             return (2 * this.spd);
         }
@@ -152,7 +158,8 @@ public class Player extends Unit {
     }
 
     public String statsToString() {
-        return "str: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense + ", res: " + this. res +
-                ", skill: " + this.skill + ", speed: " + this.spd + ", mastery: " + this.mastery;
+        return "move: " + this.move + ", str: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense +
+                ", res: " + this. res + ", skill: " + this.skill + ", speed: " + this.spd +
+                ", mastery: " + this.mastery;
     }
 }

@@ -289,6 +289,24 @@ public class HoAModel extends Observable {
         notifyObservers();
     }
 
+    public void backstab(String attackerName, String defenderName, int distance) {
+        Unit attacker = units.get(attackerName.toLowerCase());
+        Unit defender = units.get(defenderName.toLowerCase());
+        Combat.backstab(attacker, defender, distance);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void supernova(String attackerName, List<String> targetNames) {
+        Unit attacker = units.get(attackerName.toLowerCase());
+        List<Unit> targets = new ArrayList<>();
+        for (String name : targetNames) {
+            targets.add(units.get(name.toLowerCase()));
+        }
+        Combat.supernova(attacker, targets);
+        setChanged();
+        notifyObservers();}
+
     // End class abilities
 
     /**
