@@ -17,6 +17,7 @@ public abstract class Unit {
     protected int res;      // Decreases magic damage 1:1
     protected int mastery;  // Percent chance to crit
     protected Weapon equipped;
+    protected boolean blinded; // For sorcerer light tome ability
 
     /**
      * Constructor, all parameters are explained in subclasses
@@ -34,10 +35,33 @@ public abstract class Unit {
         this.res = res;
         this.mastery = mastery;
         this.equipped = equipped;
+        this.blinded = false;
     }
 
+    /**
+     * Decreases the unit's health by an amount, never below 0
+     * @param damage Amount to decrease health by
+     */
     public void takeDamage(int damage) {
         this.hp -= damage;
+        if (this.hp < 0) {
+            this.hp = 0;
+        }
+    }
+
+    /**
+     * Increases the unit's health by a set amount, never over max
+     * @param heal Amount to increase health by
+     */
+    public void heal(int heal) {
+        this.hp += heal;
+        if (this.hp > this.maxhp) {
+            this.hp = this.maxhp;
+        }
+    }
+
+    public void blind() {
+        this.blinded = true;
     }
 
     /**
@@ -85,6 +109,19 @@ public abstract class Unit {
     public abstract boolean hasDurability();
 
     /**
+     * Uses durability of the currently equipped weapon if the unit is a player. Does nothing for enemies.
+     * @param uses Number of uses to subtract from the durability
+     */
+    public abstract void useDurability(int uses);
+
+    /**
+     * Default use case for durability use is 1
+     */
+    public void useDurability() {
+        this.useDurability(1);
+    }
+
+    /**
      * Checks if a unit is in range to attack with their currently equipped weapon
      * @param distance  Distance of attack
      * @return  True if they can attack, false if they cannot
@@ -93,6 +130,48 @@ public abstract class Unit {
         return this.equipped.inRange(distance);
     }
 
+    /**
+     * Checks a unit to see if it fits a specific role/class
+     * @param role Name of the role to check (e.g. Marksman, Adept)
+     * @return true if the unit is a player and has that role, false otherwise
+     */
+    public boolean isRole(String role) {
+        if (this instanceof Player) {
+            if (((Player) this).role.equals(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the string representing the unit's highest stat
+     * Used for adaptability and not much else
+     * @return Short-form name of the highest stat (e.g. str, mag, res)
+     */
+    public String getHighestStat() {
+        // Default to strength; then take whatever is higher (only replaces if higher; ties leave the first one)
+        String highest = "str";
+        if (this.mag > this.str) {
+            highest  ="mag";
+        }
+        if (this.skill > this.mag) {
+            highest  ="skill";
+        }
+        if (this.spd > this.skill) {
+            highest  ="spd";
+        }
+        if (this.defense > this.spd) {
+            highest  ="defense";
+        }
+        if (this.res > this.defense) {
+            highest  ="res";
+        }
+        if (this.mastery > this.res) {
+            highest  ="mastery";
+        }
+        return highest;
+    }
 
     // Simple getters and setters
 

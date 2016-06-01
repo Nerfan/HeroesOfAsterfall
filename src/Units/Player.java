@@ -52,6 +52,11 @@ public class Player extends Unit {
         return (this.equipped.durability > 0);
     }
 
+    @Override
+    public void useDurability(int uses) {
+        this.equipped.durability -= uses;
+    }
+
     /**
      * Increases xp by a set amount,
      * prints a string saying that xp has gone up,
@@ -86,24 +91,32 @@ public class Player extends Unit {
 
     @Override
     public int physDamage() {
-        this.equipped.durability -= 1;
         return (this.str+this.equipped.str);
     }
 
     @Override
     public int magDamage() {
-        this.equipped.durability -= 1;
         return (this.mag+this.equipped.mag);
     }
 
     @Override
     public int getAccuracy() {
-        return (this.skill + this.equipped.hit);
+        if (blinded) {
+            return (this.skill + this.equipped.hit)*4/5;
+        } else {
+            return (this.skill + this.equipped.hit);
+        }
     }
 
     @Override
     public int getDodge() {
-        return (2*this.spd);
+        if (this.role.equals("Monk")) {
+            return ((2*this.spd) + (this.maxhp - this.hp));
+        } else if (this.role.equals("Sorcerer") && this.equipped.name.equals("Wind Tome")) {
+            return (4 * this.spd);
+        } else {
+            return (2 * this.spd);
+        }
     }
 
     public String getRole() {
@@ -145,7 +158,8 @@ public class Player extends Unit {
     }
 
     public String statsToString() {
-        return "str: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense + ", res: " + this. res +
-                ", skill: " + this.skill + ", speed: " + this.spd + ", mastery: " + this.mastery;
+        return "move: " + this.move + ", str: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense +
+                ", res: " + this. res + ", skill: " + this.skill + ", speed: " + this.spd +
+                ", mastery: " + this.mastery;
     }
 }

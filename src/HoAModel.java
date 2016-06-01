@@ -227,6 +227,88 @@ public class HoAModel extends Observable {
         notifyObservers();
     }
 
+    // Class abilities
+
+    /**
+     * Saint ability: heal two other units at the same time for half as much as normal
+     * @param healerName     Name of healer, should be of Saint class
+     * @param recipientNames List of names of recipients; should have a size of 2
+     */
+    public void linkHeal(String healerName, List<String> recipientNames) {
+        Unit healer = units.get(healerName.toLowerCase());
+        List<Unit> recipients = new ArrayList<>();
+        for (String name : recipientNames) {
+            recipients.add(units.get(name.toLowerCase()));
+        }
+        Heal.linkHeal(healer, recipients);
+        setChanged();
+        notifyObservers();
+    }
+
+    /**
+     * Marksman ability; deal half damage to up to four targets in range
+     * @param attackerName Name of Marksman
+     * @param targetNames  List of names of targets
+     */
+    public void pierce(String attackerName, List<String> targetNames) {
+        Unit attacker = units.get(attackerName.toLowerCase());
+        List<Unit> targets = new ArrayList<>();
+        for (String name : targetNames) {
+            targets.add(units.get(name.toLowerCase()));
+        }
+        Combat.pierce(attacker, targets);
+        setChanged();
+        notifyObservers();
+    }
+
+    /**
+     * Marksman ability; deal full damage to two targets in a line
+     * @param attackerName Name of Marksman
+     * @param targetNames  List of names of targets
+     */
+    public void multiShot(String attackerName, List<String> targetNames) {
+        Unit attacker = units.get(attackerName.toLowerCase());
+        List<Unit> targets = new ArrayList<>();
+        for (String name : targetNames) {
+            targets.add(units.get(name.toLowerCase()));
+        }
+        Combat.multiShot(attacker, targets);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void adaptability(String attackerName, String defenderName, int distance, List<String> adjacentNames) {
+        Unit attacker = units.get(attackerName.toLowerCase());
+        Unit defender = units.get(defenderName.toLowerCase());
+        ArrayList<Unit> adjacent = new ArrayList<>();
+        for (String name : adjacentNames) {
+            adjacent.add(units.get(name.toLowerCase()));
+        }
+        Combat.adaptability(attacker, defender, distance, adjacent);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void backstab(String attackerName, String defenderName, int distance) {
+        Unit attacker = units.get(attackerName.toLowerCase());
+        Unit defender = units.get(defenderName.toLowerCase());
+        Combat.backstab(attacker, defender, distance);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void supernova(String attackerName, List<String> targetNames) {
+        Unit attacker = units.get(attackerName.toLowerCase());
+        List<Unit> targets = new ArrayList<>();
+        for (String name : targetNames) {
+            targets.add(units.get(name.toLowerCase()));
+        }
+        Combat.supernova(attacker, targets);
+        setChanged();
+        notifyObservers();}
+
+    // End class abilities
+
     /**
      * Returns a string listing all of the players and their health
      *

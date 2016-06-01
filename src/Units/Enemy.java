@@ -37,6 +37,11 @@ public class Enemy extends Unit {
     }
 
     @Override
+    public void useDurability(int uses) {
+        // Does nothing
+    }
+
+    @Override
     public int physDamage() {
         return str;
     }
@@ -48,7 +53,11 @@ public class Enemy extends Unit {
 
     @Override
     public int getAccuracy() {
-        return skill;
+        if (blinded) {
+            return skill*4/5;
+        } else {
+            return skill;
+        }
     }
 
     @Override
@@ -66,7 +75,8 @@ public class Enemy extends Unit {
     }
 
     public String statsToString() {
-        return "str: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense + ", res: " + this. res +
-                ", skill: " + this.skill + ", speed: " + this.spd + ", mastery: " + this.mastery;
+        return "move: " + this.move + ", str: " + this.str + ", mag: " + this.mag + ", defense: " + this.defense +
+                ", res: " + this. res + ", skill: " + this.skill + ", speed: " + this.spd +
+                ", mastery: " + this.mastery;
     }
 }
