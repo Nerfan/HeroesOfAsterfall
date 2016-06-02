@@ -1,5 +1,7 @@
 package Units;
 
+import java.util.HashMap;
+
 /**
  * Gives the framework for player and enemy units. Acts as an abstract class for them to extend
  * @author Jeremy Lefurge
@@ -246,6 +248,8 @@ public abstract class Unit {
     public Weapon getEquipped() {
         return equipped;
     }
+
+    public abstract HashMap<String, Weapon> getInventory();
 
     public void setName(String name) {
         this.name = name;

@@ -352,7 +352,18 @@ public class HoAModel extends Observable {
         Combat.supernova(attacker, targets);
         attacker.takeTurn();
         setChanged();
-        notifyObservers();}
+        notifyObservers();
+    }
+
+    public void empoweredStrike(String attackerName, String tomeName, String defenderName, int distance) {
+        Unit attacker = units.get(attackerName.toLowerCase());
+        Weapon tome = attacker.getInventory().get(tomeName.toLowerCase());
+        Unit defender = units.get(defenderName.toLowerCase());
+        Combat.empoweredStrike(attacker, tome, defender, distance);
+        attacker.takeTurn();
+        setChanged();
+        notifyObservers();
+    }
 
     // End class abilities
 

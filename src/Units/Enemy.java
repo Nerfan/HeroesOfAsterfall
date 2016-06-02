@@ -1,5 +1,7 @@
 package Units;
 
+import java.util.HashMap;
+
 /**
  * Class for objects to represent enemies
  * @author Jeremy Lefurge
@@ -64,6 +66,12 @@ public class Enemy extends Unit {
     public int getDodge() {
         return (2*spd);
     }
+
+    @Override
+    public HashMap<String, Weapon> getInventory() {
+        return new HashMap<>();
+    }
+
 
     @Override
     public String toString() {

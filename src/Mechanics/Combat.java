@@ -1,6 +1,8 @@
 package Mechanics;
 
+import Units.Player;
 import Units.Unit;
+import Units.Weapon;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +77,8 @@ public class Combat {
      * @param attacker Unit dealing damage
      * @param defender Unit taking damage
      * @param multiplier For anytime nonstandard damage is dealt (e.g. a backstab has a 2x multiplier)
+     * @param xpGain Is xp to be gained from this combat?
+     * @param durabilityUse Is durability to be used for this combat?
      */
     private static void damage(Unit attacker, Unit defender, double multiplier, boolean xpGain, boolean durabilityUse) {
         Random rng = new Random();  // Initialize the rng
@@ -83,6 +87,8 @@ public class Combat {
 
         if (roll > (attacker.getAccuracy())-defender.getDodge()) { // Miss chance
             System.out.println(attacker.getName() + " missed!");
+        } else if (defender.getHp() == 0) {
+            System.out.println(defender.getName() + " is already dead!");
         } else {
 
             // Gets the type of attack and calculates damage
@@ -366,6 +372,44 @@ public class Combat {
 
         catch (Exception e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * Shaman ability; use a tome to enhance the damage of a mace
+     * @param attacker Unit attacking; should be a Shaman
+     * @param tome Tome to use to empower the mace strike
+     * @param defender Unit defending
+     * @param distance Distance between units
+     */
+    public static void empoweredStrike(Unit attacker, Weapon tome, Unit defender, int distance) {
+        try {
+            if (!attacker.isRole("Shaman")) {
+                System.out.println("Error: Empowered Strike is a Shaman ability.");
+                return;
+            } else if (!attacker.getEquipped().getType().equals("Mace")) {
+                System.out.println("Mace must be equipped.");
+                return;
+            } else if (!attacker.getInventory().containsKey(tome.getName().toLowerCase())) {
+                System.out.println("Error: Tome not found in inventory.");
+                return;
+            } else if (attacker.getHp() <= 0) { // Make sure the attacker is alive
+                System.out.println(attacker.getName() + " is dead!");
+                return;
+            } else if (defender.getHp() <= 0) { // Make sure the defender is alive
+                System.out.println(defender.getName() + " is dead!");
+                return;
+            } else if (!attacker.inRange(distance)) {
+                System.out.println("Out of range!");
+                return;
+            }
+            attacker.setStr(attacker.getStr() + tome.getMag());
+            combat(attacker, defender, distance);
+            attacker.setStr(attacker.getStr() - tome.getMag());
+        }
+
+        catch (Exception ex) {
+            System.out.println(ex.getMessage());
         }
     }
 }
