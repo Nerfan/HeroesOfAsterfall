@@ -85,6 +85,7 @@ public class GUI extends Application implements Observer{
 
          // Right side
         VBox buttons = new VBox(25);
+        buttons.setMinWidth(300);
         turnCount = new Label("PLAYER Phase\nTurn 1");
         turnCount.setFont(new Font("Arial", 40));
         Button endTurn = new Button("End Turn");
