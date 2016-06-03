@@ -1,0 +1,6 @@
+Beta 3.1:
+Added abilities for advanced classes (Still need level up stats)
+Added the ability to change level
+Added Player and enemy phases (one action per unit per phase)
+
+Fixed the RNG
