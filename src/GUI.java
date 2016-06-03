@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -25,25 +26,35 @@ import java.util.Observer;
  * Standard output (i.e. System.out) is redirected to a TextArea in the GUI.
  */
 public class GUI extends Application implements Observer{
+    // Stuff involving interaction with the model
     /** Connection to the game model */
     private HoAModel model;
+    /** Used to store unit names to be referenced when combat or heal are called */
+    private String unit1, unit2;
+    /** For anything that requires more a list of units (e.g. Multi-Shot or Link Heal) */
+    private ArrayList<String> multiTargets;
+    /** Distance for combat */
+    private int distance;
 
+    // Brute force method used to tell the GUI exactly what is happening and how to interpret inputs
     /** Anything that requires more than one easy input should be a different mode (e.g. attacking or healing) */
     private enum Mode {
         ATTACK,
         HEAL,
-        MULTITARGET
+        MULTISHOT,
+        PIERCE,
+        BACKSTAB,
+        SUPERNOVA,
+        LINKHEAL,
+        ADAPTABILITY
     }
-
-    /** Used to store units to be referenced when combat or heal are called */
-    private String unit1, unit2;
-    /** Distance for combat; currently unused */
-    private int distance;
     /** What is happening right now; used while drawing parts of the GUI that could be used for multiple purposes. */
     private Mode mode;
 
-    /** GUI Components */
+    // GUI stuff
+    /** Top-most GUI component; referenced in several different drawing methods */
     private BorderPane mainBorder;
+    /** Tells the user whether it is player or enemy phase and what turn number it currently is */
     private Label turnCount;
 
     @Override
@@ -51,6 +62,7 @@ public class GUI extends Application implements Observer{
         // TODO This needs to be able to change based on user input
         this.model = new HoAModel("data/players.txt", "data/level1.txt", "data/weapons.txt");
         this.model.addObserver(this);
+        this.multiTargets = new ArrayList<>();
     }
 
     @Override
@@ -174,6 +186,74 @@ public class GUI extends Application implements Observer{
             drawPlayers();
         });
 
+        // Ability buttons
+        switch (player.getRole()) {
+            case "Marksman":
+                Button multiShot = new Button("Multi-Shot");
+                multiShot.setOnAction(e -> {
+                    unit1 = playerName;
+                    mode = Mode.MULTISHOT;
+                    drawEnemies();
+                });
+
+                Button pierce = new Button("Pierce");
+                pierce.setOnAction(e -> {
+                    unit1 = playerName;
+                    mode = Mode.PIERCE;
+                    drawEnemies();
+                });
+                buttons.getChildren().addAll(multiShot, pierce);
+                break;
+            case "Assassin":
+                Button backstab = new Button("Backstab");
+                backstab.setOnAction(e -> {
+                    unit1 = playerName;
+                    mode = Mode.BACKSTAB;
+                    drawEnemies();
+                });
+                break;
+            case "Monk":
+                break;
+            case "Gladiator":
+                break;
+            case "Paladin":
+                break;
+            case "Shaman":
+                Button empoweredStrike = new Button("Empowered Strike");
+                // TODO
+                buttons.getChildren().add(empoweredStrike);
+                break;
+            case "Saint":
+                Button linkHeal = new Button("Link Heal");
+                linkHeal.setOnAction(e -> {
+                    unit1 = playerName;
+                    mode = Mode.LINKHEAL;
+                    drawPlayers();
+                });
+                buttons.getChildren().add(linkHeal);
+                break;
+            case "Sorcerer":
+                Button supernova = new Button("Supernova");
+                supernova.setOnAction(e -> {
+                    unit1 = playerName;
+                    mode = Mode.SUPERNOVA;
+                    drawEnemies();
+                });
+                buttons.getChildren().add(supernova);
+                break;
+            case "Blademaster":
+                break;
+            case "Strategist":
+                Button adaptability = new Button("Adaptability");
+                adaptability.setOnAction(e -> {
+                    unit1 = playerName;
+                    mode = Mode.ADAPTABILITY;
+                    drawEnemies();
+                });
+                buttons.getChildren().add(adaptability);
+                break;
+        }
+
         Button back = new Button("Back");
         back.setOnAction(e -> drawMain());
 
@@ -251,16 +331,39 @@ public class GUI extends Application implements Observer{
             Button button = new Button(enemy.getName());
             button.setOnAction(e -> {
                 // Need to see if we're attacking or healing the target
-                if (mode.equals(Mode.ATTACK)) {
+                if (mode.equals(Mode.ATTACK) || mode.equals(Mode.BACKSTAB)) {
                     unit2 = enemy.getName();
                     drawRanges();
+                } else if (mode.equals(Mode.ADAPTABILITY)) {
+                    unit2 = enemy.getName();
+                    drawPlayers();
                 } else if (mode.equals(Mode.HEAL)) {
                     model.heal(unit1, enemy.getName());
+                } else if (mode.equals(Mode.MULTISHOT) || mode.equals(Mode.PIERCE) || mode.equals(Mode.SUPERNOVA)) {
+                    multiTargets.add(enemy.getName());
                 }
             });
             button.setMaxWidth(100);
             enemies.getChildren().add(button);
         }
+        Button done = new Button("Done");
+        done.setOnAction(e -> {
+            switch(mode) {
+                case MULTISHOT:
+                    model.multiShot(unit1, multiTargets);
+                    break;
+                case PIERCE:
+                    model.pierce(unit1, multiTargets);
+                    break;
+                case SUPERNOVA:
+                    model.supernova(unit1, multiTargets);
+                    break;
+                default:
+                    drawMain();
+                    break;
+            }
+        });
+        enemies.getChildren().add(done);
         mainBorder.setCenter(enemies);
     }
 
@@ -278,11 +381,28 @@ public class GUI extends Application implements Observer{
                     drawRanges();
                 } else if (mode.equals(Mode.HEAL)) {
                     model.heal(unit1, player.getName());
+                } else if (mode.equals(Mode.LINKHEAL) || mode.equals(Mode.ADAPTABILITY)) {
+                    multiTargets.add(player.getName());
                 }
             });
             button.setMaxWidth(100);
             players.getChildren().add(button);
         }
+        Button done = new Button("Done");
+        done.setOnAction(e -> {
+            switch(mode) {
+                case LINKHEAL:
+                    model.linkHeal(unit1, multiTargets);
+                    break;
+                case ADAPTABILITY:
+                    drawRanges();
+                    break;
+                default:
+                    drawMain();
+                    break;
+            }
+        });
+        players.getChildren().add(done);
         mainBorder.setCenter(players);
     }
 
@@ -293,17 +413,44 @@ public class GUI extends Application implements Observer{
         VBox ranges = new VBox(10);
 
         Button one = new Button("1");
-        one.setOnAction(e -> model.combat(unit1, unit2, 1));
+        one.setOnAction(e -> {
+            distance = 1;
+            enterCombat();
+        });
         one.setMinSize(100, 100);
         Button two = new Button("2");
-        two.setOnAction(e -> model.combat(unit1, unit2, 2));
+        two.setOnAction(e -> {
+            distance = 2;
+            enterCombat();
+        });
         two.setMinSize(100, 100);
         Button three = new Button("3");
-        three.setOnAction(e -> model.combat(unit1, unit2, 3));
+        three.setOnAction(e -> {
+            distance = 3;
+            enterCombat();
+        });
         three.setMinSize(100, 100);
 
         ranges.getChildren().addAll(one, two, three);
         mainBorder.setCenter(ranges);
+    }
+
+    /**
+     * Simple utility function to enter into different combat scenarios based on the current mode.
+     * For example, backstabbing an opponent is slightly different than simply attacking one.
+     */
+    private void enterCombat() {
+        switch (mode) {
+            case ATTACK:
+                model.combat(unit1, unit2, distance);
+                break;
+            case BACKSTAB:
+                model.backstab(unit1, unit2, distance);
+                break;
+            case ADAPTABILITY:
+                model.adaptability(unit1, unit2, distance, multiTargets);
+                break;
+        }
     }
 
     /**
@@ -322,6 +469,10 @@ public class GUI extends Application implements Observer{
         turnCount.setText(model.getPhase() + " Phase\n Turn " + model.getTurnCount());
     }
 
+    /**
+     * Utility method that redirects standard output (i.e. System.out) to a specified text area
+     * @param textArea Text Area to display standard output
+     */
     private static void redirectConsoleTo(TextArea textArea) {
         PrintStream ps = new PrintStream(new Console(textArea));
         System.setOut(ps);
@@ -335,7 +486,7 @@ public class GUI extends Application implements Observer{
 
         private TextArea output;
 
-        public Console(TextArea ta) {
+        private Console(TextArea ta) {
             this.output = ta;
         }
 
