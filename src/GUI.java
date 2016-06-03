@@ -26,12 +26,12 @@ import java.util.Observer;
  * A GUI for the game
  * Standard output (i.e. System.out) is redirected to a TextArea in the GUI.
  */
-public class GUI extends Application implements Observer{
+public class GUI extends Application implements Observer {
     // Stuff involving interaction with the model
     /** Connection to the game model */
     private HoAModel model;
     /** Used to store unit names to be referenced when combat or heal are called */
-    private String unit1, unit2;
+    private String unit1, unit2, tome;
     /** For anything that requires more a list of units (e.g. Multi-Shot or Link Heal) */
     private ArrayList<String> multiTargets;
     /** Distance for combat */
@@ -45,6 +45,7 @@ public class GUI extends Application implements Observer{
         MULTISHOT,
         PIERCE,
         BACKSTAB,
+        EMPOWERED,
         SUPERNOVA,
         LINKHEAL,
         ADAPTABILITY
@@ -223,7 +224,10 @@ public class GUI extends Application implements Observer{
                 break;
             case "Shaman":
                 Button empoweredStrike = new Button("Empowered Strike");
-                // TODO
+                empoweredStrike.setOnAction(e -> {
+                    mode = Mode.EMPOWERED;
+                    drawTomeSelection(playerName);
+                });
                 buttons.getChildren().add(empoweredStrike);
                 break;
             case "Saint":
@@ -251,7 +255,7 @@ public class GUI extends Application implements Observer{
                 adaptability.setOnAction(e -> {
                     unit1 = playerName;
                     mode = Mode.ADAPTABILITY;
-                    drawEnemies();
+                    drawPlayers();
                 });
                 buttons.getChildren().add(adaptability);
                 break;
@@ -334,12 +338,9 @@ public class GUI extends Application implements Observer{
             Button button = new Button(enemy.getName());
             button.setOnAction(e -> {
                 // Need to see if we're attacking or healing the target
-                if (mode.equals(Mode.ATTACK) || mode.equals(Mode.BACKSTAB)) {
+                if (mode.equals(Mode.ATTACK) || mode.equals(Mode.BACKSTAB) || mode.equals(Mode.ADAPTABILITY)) {
                     unit2 = enemy.getName();
                     drawRanges();
-                } else if (mode.equals(Mode.ADAPTABILITY)) {
-                    unit2 = enemy.getName();
-                    drawPlayers();
                 } else if (mode.equals(Mode.HEAL)) {
                     model.heal(unit1, enemy.getName());
                 } else if (mode.equals(Mode.MULTISHOT) || mode.equals(Mode.PIERCE) || mode.equals(Mode.SUPERNOVA)) {
@@ -398,7 +399,7 @@ public class GUI extends Application implements Observer{
                     model.linkHeal(unit1, multiTargets);
                     break;
                 case ADAPTABILITY:
-                    drawRanges();
+                    drawEnemies();
                     break;
                 default:
                     drawMain();
@@ -407,6 +408,24 @@ public class GUI extends Application implements Observer{
         });
         players.getChildren().add(done);
         mainBorder.setCenter(players);
+    }
+
+    /**
+     * Draws buttons to select a tome for Empowered Strike for Shamans. Only used for that purpose
+     * @param playerName Name of the player performing the Empowered Strike
+     */
+    private void drawTomeSelection(String playerName) {
+        VBox tomes = new VBox(25);
+        for (Weapon weapon : model.getPlayer(playerName).getInventory().values()) {
+            if (weapon.getType().equals("Tome")) {
+                Button tome = new Button(weapon.getName());
+                tome.setOnAction(e -> {
+                    this.tome = weapon.getName();
+                    drawEnemies();
+                });
+                tomes.getChildren().add(tome);
+            }
+        }
     }
 
     /**
@@ -453,6 +472,8 @@ public class GUI extends Application implements Observer{
             case ADAPTABILITY:
                 model.adaptability(unit1, unit2, distance, multiTargets);
                 break;
+            case EMPOWERED:
+                model.empoweredStrike(unit1, tome, unit2, distance);
         }
     }
 
@@ -469,7 +490,7 @@ public class GUI extends Application implements Observer{
     public void update(Observable observable, Object o) {
         // Whenever anything changes in the model, we can return to the main screen (all units displayed)
         drawMain();
-        turnCount.setText(model.getPhase() + " Phase\n Turn " + model.getTurnCount());
+        turnCount.setText(model.getPhase() + " Phase\nTurn " + model.getTurnCount());
     }
 
     /**
