@@ -12,11 +12,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -48,7 +47,6 @@ public class GUI extends Application implements Observer{
 
     @Override
     public void init() {
-        // TODO This needs to be able to change based on user input
         this.model = new HoAModel("data/players.txt", "data/level1.txt", "data/weapons.txt");
         this.model.addObserver(this);
     }
@@ -94,7 +92,9 @@ public class GUI extends Application implements Observer{
         save.setOnAction(e -> model.save());
         Button healAll = new Button("Heal All");
         healAll.setOnAction(e -> model.healAll());
-        buttons.getChildren().addAll(turnCount, endTurn, save, healAll);
+        Button newLevel = new Button("New Level");
+        newLevel.setOnAction(e -> newLevel());
+        buttons.getChildren().addAll(turnCount, endTurn, save, healAll, newLevel);
         mainBorder.setRight(buttons);
 
         return new Scene(mainBorder);
@@ -327,6 +327,31 @@ public class GUI extends Application implements Observer{
         PrintStream ps = new PrintStream(new Console(textArea));
         System.setOut(ps);
         System.setErr(ps);
+    }
+
+    /**
+     * Allows the user to select a new level file
+     */
+    private void newLevel() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Enemies File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter(".txt", "*.txt"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"));
+        fileChooser.setInitialDirectory(new File("data/"));
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) { // this is here just in case the user ends up closing the file chooser
+            try {
+                this.model = new HoAModel("data/players.txt", selectedFile.getPath(), "data/weapons.txt");
+                String nameOfFile = selectedFile.getName();
+                System.out.println(nameOfFile + " has been loaded!");
+                drawMain();
+                this.model.addObserver(this);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+
+            }
+        }
     }
 
     /**
