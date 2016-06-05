@@ -118,6 +118,11 @@ public class GUI extends Application implements Observer {
      * Draws to the GUI a list of all players and enemies (clicking on one opens their info)
      */
     private void drawMain() {
+        this.unit1 = "";
+        this.unit2 = "";
+        this.tome = "";
+        this.multiTargets = new ArrayList<>();
+
         HBox units = new HBox(50);
 
         VBox players = new VBox(20);
@@ -333,6 +338,8 @@ public class GUI extends Application implements Observer {
      */
     private void drawEnemies() {
         VBox enemies = new VBox(20);
+        Label label = new Label("Select primary target first if selecting for a mutli-target ability.");
+        enemies.getChildren().add(label);
         for (Enemy enemy : model.getEnemies().values()) {
             Button button = new Button(enemy.getName());
             button.setOnAction(e -> {
@@ -350,23 +357,23 @@ public class GUI extends Application implements Observer {
             enemies.getChildren().add(button);
         }
         Button done = new Button("Done");
-        done.setOnAction(e -> {
-            switch(mode) {
-                case MULTISHOT:
-                    model.multiShot(unit1, multiTargets);
-                    break;
-                case PIERCE:
-                    model.pierce(unit1, multiTargets);
-                    break;
-                case SUPERNOVA:
-                    model.supernova(unit1, multiTargets);
-                    break;
-                default:
-                    drawMain();
-                    break;
-            }
-        });
-        enemies.getChildren().add(done);
+        switch (mode) {
+            case MULTISHOT:
+                done.setOnAction(e -> model.multiShot(unit1, multiTargets));
+                enemies.getChildren().add(done);
+                break;
+            case PIERCE:
+                done.setOnAction(e -> model.pierce(unit1, multiTargets));
+                enemies.getChildren().add(done);
+                break;
+            case SUPERNOVA:
+                done.setOnAction(e -> drawRanges());
+                enemies.getChildren().add(done);
+                break;
+        }
+        Button back = new Button("Back");
+        back.setOnAction(e -> drawMain());
+        enemies.getChildren().add(back);
         mainBorder.setCenter(enemies);
     }
 
@@ -375,6 +382,8 @@ public class GUI extends Application implements Observer {
      */
     private void drawPlayers() {
         VBox players = new VBox(20);
+        Label label = new Label("Select primary target first if selecting for a mutli-target ability.");
+        players.getChildren().add(label);
         for (Player player : model.getPlayers().values()) {
             Button button = new Button(player.getName());
             button.setOnAction(e -> {
@@ -392,20 +401,19 @@ public class GUI extends Application implements Observer {
             players.getChildren().add(button);
         }
         Button done = new Button("Done");
-        done.setOnAction(e -> {
-            switch(mode) {
-                case LINKHEAL:
-                    model.linkHeal(unit1, multiTargets);
-                    break;
-                case ADAPTABILITY:
-                    drawEnemies();
-                    break;
-                default:
-                    drawMain();
-                    break;
-            }
-        });
-        players.getChildren().add(done);
+        switch (mode) {
+            case LINKHEAL:
+                done.setOnAction(e -> model.linkHeal(unit1, multiTargets));
+                players.getChildren().add(done);
+                break;
+            case ADAPTABILITY:
+                done.setOnAction(e -> drawEnemies());
+                players.getChildren().add(done);
+                break;
+        }
+        Button back = new Button("Back");
+        back.setOnAction(e -> drawMain());
+        players.getChildren().add(back);
         mainBorder.setCenter(players);
     }
 
@@ -473,6 +481,10 @@ public class GUI extends Application implements Observer {
                 break;
             case EMPOWERED:
                 model.empoweredStrike(unit1, tome, unit2, distance);
+                break;
+            case SUPERNOVA:
+                model.supernova(unit1, multiTargets, distance);
+                break;
         }
     }
 

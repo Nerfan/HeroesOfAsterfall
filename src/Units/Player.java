@@ -10,11 +10,11 @@ import java.util.Map;
  * @author Jeremy Lefurge
  */
 public class Player extends Unit {
-    String role;
-    int level;
-    int xp;
-    int gold;
-    HashMap<String, Weapon> inventory;
+    protected String role;
+    protected int level;
+    protected int xp;
+    protected int gold;
+    protected HashMap<String, Weapon> inventory;
 
     /**
      * Constructor
@@ -55,21 +55,31 @@ public class Player extends Unit {
     @Override
     public void useDurability(int uses) {
         this.equipped.durability -= uses;
+        if (this.equipped.durability < 0) {
+            this.equipped.durability = 0;
+        }
     }
 
     /**
-     * Increases xp by a set amount,
-     * prints a string saying that xp has gone up,
-     * and levels up the player if their xp goes above 10
+     * Increases xp by a set amount
+     * Prints a string saying that xp has gone up and levels up the player if their xp goes above 10
+     * Cannot increase xp above level 20
      * @param xp    amount of xp to add
      */
     public void increaseXP(int xp) {
+        if (this.level == 20) {
+            System.out.println(this.name + " already at max xp!");
+            return;
+        }
         this.xp += xp;
         System.out.println(this.name + " gained " + xp + " xp! ");
         if (this.xp >= 10) {
             this.xp -= 10;
             this.level += 1;
             LevelUp.levelUp(this);
+        }
+        if (this.level == 20) {
+            this.xp = 0;
         }
     }
 
@@ -85,6 +95,54 @@ public class Player extends Unit {
         }
         this.equipped = this.inventory.get(weaponName);
         System.out.println(this.name + " now has " + this.equipped.name + " equipped.");
+    }
+
+    /**
+     * Advance a player from a basic class to an advanced class.
+     * The player must be at level 20, and the class specified must be a valid advanced classes for the basic class.
+     * For example, an acolyte can only be promoted to a Saint or Sorcerer
+     * @param promotion Class the player is being promoted to (must be a valid successor)
+     */
+    public void promote(String promotion) {
+        if (this.level != 20) {
+            System.out.println("Can only promote units from level 20.");
+            return;
+        }
+        String temp = promotion.toLowerCase();
+        // TODO stat increases
+        if (this.isRole("Acolyte") && temp.equals("saint")) {
+            this.role = "Saint";
+            System.out.println(this.name + " has been promoted to a " + this.role + "!");
+        } else if (this.isRole("Acolyte") && temp.equals("sorcerer")) {
+            this.role = "Sorcerer";
+            System.out.println(this.name + " has been promoted to a " + this.role + "!");
+        } else if (this.isRole("Adept") && temp.equals("blademaster")) {
+            this.role = "Blademaster";
+            System.out.println(this.name + " has been promoted to a " + this.role + "!");
+        } else if (this.isRole("Adept") && temp.equals("strategist")) {
+            this.role = "Strategist";
+            System.out.println(this.name + " has been promoted to a " + this.role + "!");
+        } else if (this.isRole("Nomad") && temp.equals("monk")) {
+            this.role = "Monk";
+            System.out.println(this.name + " has been promoted to a " + this.role + "!");
+        } else if (this.isRole("Nomad") && temp.equals("shaman")) {
+            this.role = "Shaman";
+            System.out.println(this.name + " has been promoted to a " + this.role + "!");
+        } else if (this.isRole("Hunter") && temp.equals("marksman")) {
+            this.role = "Marksman";
+            System.out.println(this.name + " has been promoted to a " + this.role + "!");
+        } else if (this.isRole("Hunter") && temp.equals("assassin")) {
+            this.role = "Assassin";
+            System.out.println(this.name + " has been promoted to a " + this.role + "!");
+        } else if (this.isRole("Warrior") && temp.equals("gladiator")) {
+            this.role = "Gladiator";
+            System.out.println(this.name + " has been promoted to a " + this.role + "!");
+        } else if (this.isRole("Warrior") && temp.equals("paladin")) {
+            this.role = "Paladin";
+            System.out.println(this.name + " has been promoted to a " + this.role + "!");
+        } else {
+            System.out.println("Invalid promotion; cannot promote from " + this.role + " to " + promotion + ".");
+        }
     }
 
     // Simple getters and setters

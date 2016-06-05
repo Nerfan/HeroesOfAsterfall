@@ -65,6 +65,7 @@ public class Heal {
 
             healer.increaseXP(1);
             healer.useDurability();
+            healer.takeTurn();
         }
 
         catch(Exception ex) {
@@ -98,10 +99,10 @@ public class Heal {
             // Check this ahead of time so that we don't get a situation where we heal one but not the other
             for (Unit recipient : recipients) {
                 if (recipient.getHp() == 0) {
-                    System.out.println("Error: " + recipient + " is dead.");
+                    System.out.println("Error: " + recipient.getName() + " is dead.");
                     return;
                 } else if (recipient.getHp() == recipient.getMaxhp()) {
-                    System.out.println("Error: " + recipient + " already has full HP.");
+                    System.out.println("Error: " + recipient.getName() + " already has full HP.");
                     return;
                 }
             }
@@ -117,7 +118,7 @@ public class Heal {
                 }
                 heal /= 2; // Link heal, so only half the amount
                 Random rng = new Random();
-                if (rng.nextInt(100) < healer.getMastery()) {
+                if (rng.nextInt(100) < healer.getMastery()) { // Don't need to check for Saint class again
                     heal *= 3;
                     System.out.print("Critical heal! ");
                 }
@@ -130,6 +131,7 @@ public class Heal {
             }
             healer.increaseXP(1);
             healer.useDurability();
+            healer.takeTurn();
         }
 
         catch(Exception ex) {

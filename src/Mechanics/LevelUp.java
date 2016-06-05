@@ -8,7 +8,7 @@ import java.util.TreeMap;
 /**
  * Simply creates class objects to hold probabilities of a stat increasing upon a leveling up.
  * Each player class has their own LevelUp object created in the init() method.
- * init() should be called by the main function during the initialization routine.
+ * init() should be called by the model constructor.
  * @author Jeremy Lefurge
  */
 public class LevelUp {
@@ -36,7 +36,7 @@ public class LevelUp {
      * @param resChance     Resistance
      * @param masteryChance Mastery
      */
-    public LevelUp(int hpChance, int strChance, int magChance, int skillChance, int spdChance,
+    private LevelUp(int hpChance, int strChance, int magChance, int skillChance, int spdChance,
                    int defenseChance, int resChance, int masteryChance) {
         this.hpChance = hpChance;
         this.strChance = strChance;
@@ -101,6 +101,16 @@ public class LevelUp {
         levelUps.put("Nomad", new LevelUp(65, 60, 20, 75, 75, 40, 25, 10));
         levelUps.put("Hunter", new LevelUp(50, 60, 10, 80, 80, 30, 40, 15));
         levelUps.put("Warrior", new LevelUp(70, 70, 30, 40, 45, 70, 30, 10));
-        // TODO Advanced classes
+        // Advanced classes
+        levelUps.put("Saint", new LevelUp(60, 10, 90, 50, 45, 20, 80, 10));
+        levelUps.put("Sorcerer", new LevelUp(70, 10, 90, 75, 30, 25, 80, 15));
+        levelUps.put("Blademaster", new LevelUp(70, 60, 10, 85, 90, 40, 30, 25));
+        levelUps.put("Strategist", new LevelUp(70, 60, 60, 70, 70, 40, 60, 15));
+        levelUps.put("Monk", new LevelUp(75, 60, 30, 80, 70, 60, 60, 15));
+        levelUps.put("Shaman", new LevelUp(75, 70, 50, 60, 60, 40, 35, 15));
+        levelUps.put("Marksman", new LevelUp(70, 70, 10, 90, 60, 40, 45, 20));
+        levelUps.put("Assassin", new LevelUp(60, 80, 10, 90, 90, 30, 20, 30));
+        levelUps.put("Gladiator", new LevelUp(80, 90, 10, 50, 55, 60, 15, 20));
+        levelUps.put("Paladin", new LevelUp(95, 60, 40, 60, 50, 80, 70, 10));
     }
 }

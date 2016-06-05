@@ -1,6 +1,18 @@
+Beta 3.2
+Fixed a bug where every unit got the Paladin's light shield ability
+Abilities now properly check for durability
+Abilities will no longer go through if no targets are selected
+Enemies can now properly retaliate for the Pierce and Supernova abilities
+Enemies now actually get to act on their turn and players do not act on enemy turns
+Fixed a problem where the list of targets in the GUI was not resetting upon action
+Added the ability to back out of an ability cast (split the Done button into a Done and Back)
+A unit's action is not taken if the action fails
+** Not yet fully implemented:
+Advanced classes now have proper level up stats and a method has been added to promote players
+No way to access that method as of now
+
 Beta 3.1:
 Added abilities for advanced classes (Still need level up stats)
 Added the ability to change level
 Added Player and enemy phases (one action per unit per phase)
-
 Fixed the RNG

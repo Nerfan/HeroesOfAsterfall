@@ -33,6 +33,9 @@ public class Combat {
             } else if (!attacker.inRange(distance)) {
                 System.out.println("Out of range!");
                 return;
+            } else if (!attacker.hasDurability()) {
+                System.out.println("No durability left on " + attacker.getEquipped().getName() + "!");
+                return;
             }
 
             // Blademaster ability
@@ -44,7 +47,8 @@ public class Combat {
 
             damage(attacker, defender);
 
-            if (defender.getAttackType().equals("heal") || defender.getHp() <= 0 || !defender.inRange(distance)) {
+            if (defender.getAttackType().equals("heal") || defender.getHp() <= 0 || !defender.inRange(distance) ||
+                    !defender.hasDurability()) {
                 System.out.println("No retaliation from " + defender.getName() + "!");
             } else if (!alreadyHit) {
                 damage(defender, attacker);
@@ -52,6 +56,7 @@ public class Combat {
 
             System.out.println(attacker.getName() + " has " + attacker.getHp() + " hp remaining.");
             System.out.println(defender.getName() + " has " + defender.getHp() + " hp remaining.");
+            attacker.takeTurn();
         }
 
         catch (Exception e) {
@@ -122,7 +127,7 @@ public class Combat {
             }
 
             // Paladin ability
-            if (rng.nextInt(100) < 30) {
+            if (defender.isRole("Paladin") && rng.nextInt(100) < 30) {
                 damage /= 2;
             }
 
@@ -175,15 +180,27 @@ public class Combat {
             if (!attacker.isRole("Marksman")) {
                 System.out.println("Error: Multi-Shot is a Marksman ability.");
                 return;
+            } else if (!attacker.getEquipped().getType().equals("Bow")) {
+                System.out.println("A bow must be equipped.");
+                return;
+            } else if (attacker.getHp() <= 0) { // Make sure the attacker is alive
+                System.out.println(attacker.getName() + " is dead!");
+                return;
             } else if (targets.size() > 4) {
                 System.out.println("Error: Multi-Shot can hit at most four targets.");
                 return;
+            } else if (targets.size() == 0) {
+                System.out.println("No targets selected.");
+                return;
+            } else if (!attacker.hasDurability()) {
+                System.out.println("No durability left on " + attacker.getEquipped().getName() + "!");
+                return;
             }
             for (Unit target : targets) {
-                damage(attacker, target, 0.5, false, false);
+                damage(attacker, target, 0.5, false, true);
             }
-            attacker.useDurability();
             attacker.increaseXP(1);
+            attacker.takeTurn();
         }
 
         catch (Exception ex) {
@@ -194,22 +211,42 @@ public class Combat {
     /**
      * Marksman ability; deals full damage to two targets in a line
      * @param attacker Unit attacking; should be a player with the Marksman class
-     * @param targets  Units getting hit
+     * @param targets  Units getting hit; first unit in the list can retaliate if able under normal circumstances
      */
     public static void pierce(Unit attacker, List<Unit> targets) {
         try {
             if (!attacker.isRole("Marksman")) {
                 System.out.println("Error: Pierce is a Marksman ability.");
                 return;
+            } else if (!attacker.getEquipped().getType().equals("Bow")) {
+                System.out.println("A bow must be equipped.");
+                return;
+            } else if (attacker.getHp() <= 0) { // Make sure the attacker is alive
+                System.out.println(attacker.getName() + " is dead!");
+                return;
             } else if (targets.size() > 2) {
                 System.out.println("Error: Pierce can hit at most four targets.");
+                return;
+            } else if (targets.size() == 0) {
+                System.out.println("No targets selected.");
+                return;
+            } else if (!attacker.hasDurability()) {
+                System.out.println("No durability left on " + attacker.getEquipped().getName() + "!");
                 return;
             }
             for (Unit target : targets) {
                 damage(attacker, target, 1, false, false);
             }
+            Unit defender = targets.get(0);
+            if (defender.getAttackType().equals("heal") || defender.getHp() <= 0 || !defender.inRange(2) ||
+                    !defender.hasDurability()) {
+                System.out.println("No retaliation from " + defender.getName() + "!");
+            } else {
+                damage(defender, attacker);
+            }
             attacker.useDurability();
             attacker.increaseXP(1);
+            attacker.takeTurn();
         }
 
         catch (Exception ex) {
@@ -242,6 +279,9 @@ public class Combat {
                 return;
             } else if (!attacker.isRole("Strategist")) {
                 System.out.println("Error: Adaptability is a Strategist ability.");
+                return;
+            } else if (!attacker.hasDurability()) {
+                System.out.println("No durability left on " + attacker.getEquipped().getName() + "!");
                 return;
             }
             ArrayList<String> maxStats = new ArrayList<>();
@@ -329,6 +369,9 @@ public class Combat {
             } else if (!attacker.isRole("Assassin")) {
                 System.out.println("Error: Backstab is an Assassin ability");
                 return;
+            } else if (!attacker.hasDurability()) {
+                System.out.println("No durability left on " + attacker.getEquipped().getName() + "!");
+                return;
             }
 
             damage(attacker, defender, 2);
@@ -341,6 +384,7 @@ public class Combat {
 
             System.out.println(attacker.getName() + " has " + attacker.getHp() + " hp remaining.");
             System.out.println(defender.getName() + " has " + defender.getHp() + " hp remaining.");
+            attacker.takeTurn();
         }
 
         catch (Exception e) {
@@ -348,7 +392,13 @@ public class Combat {
         }
     }
 
-    public static void supernova(Unit attacker, List<Unit> targets) {
+    /**
+     * Sorcerer ability; deal half damage to a 9-square area on the field
+     * @param attacker Unit attacking; should be of the Sorcerer class
+     * @param targets List of units being hit by the fireball; the first unit in the list has the chance to retaliate
+     * @param distance Distance from the attacker to the primary target
+     */
+    public static void supernova(Unit attacker, List<Unit> targets, int distance) {
         try {
             if (!attacker.isRole("Sorcerer")) {
                 System.out.println("Error: Supernova is a Sorcerer ability.");
@@ -362,12 +412,27 @@ public class Combat {
             } else if (targets.size() > 9) {
                 System.out.println("Too many targets.");
                 return;
+            } else if (targets.size() == 0) {
+                System.out.println("No targets selected.");
+                return;
+            } else if (!attacker.hasDurability()) {
+                System.out.println("No durability left on " + attacker.getEquipped().getName() + "!");
+                return;
             }
             for (Unit target : targets) {
                 damage(attacker, target, 0.5, false, false);
             }
+
+            Unit defender = targets.get(0);
+            if (defender.getAttackType().equals("heal") || defender.getHp() <= 0 || !defender.inRange(distance)) {
+                System.out.println("No retaliation from " + defender.getName() + "!");
+            } else {
+                damage(defender, attacker);
+            }
+
             attacker.useDurability(3);
             attacker.increaseXP(1);
+            attacker.takeTurn();
         }
 
         catch (Exception e) {
@@ -401,6 +466,9 @@ public class Combat {
                 return;
             } else if (!attacker.inRange(distance)) {
                 System.out.println("Out of range!");
+                return;
+            } else if (!attacker.hasDurability()) {
+                System.out.println("No durability left on " + attacker.getEquipped().getName() + "!");
                 return;
             }
             attacker.setStr(attacker.getStr() + tome.getMag());

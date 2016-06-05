@@ -52,7 +52,6 @@ public class HoAModel extends Observable {
         this.weaponsFile = weaponsFile;
         this.enemiesFile = enemiesFile;
         this.playersFile = playersFile;
-        this.phase = Phase.ENEMY;
         this.turncount = 0;
 
         // Initializes all of these as empty TreeMaps
@@ -180,6 +179,7 @@ public class HoAModel extends Observable {
             for (Map.Entry<String, Enemy> entry : this.enemies.entrySet()) {
                 this.units.put(entry.getKey(), entry.getValue());
             }
+            this.phase = Phase.ENEMY;
             this.nextPhase(); // Starts the first player phase
         }
 
@@ -194,6 +194,7 @@ public class HoAModel extends Observable {
         }
         catch(Exception ex) {
             System.out.println("Something nonspecific went wrong.");
+            System.out.println(ex);
         }
 
     }
@@ -210,7 +211,7 @@ public class HoAModel extends Observable {
                 break;
             case PLAYER:
                 this.phase = Phase.ENEMY;
-                players.values().forEach(Unit::newTurn);
+                enemies.values().forEach(Unit::newTurn);
                 break;
         }
         setChanged();
@@ -238,7 +239,6 @@ public class HoAModel extends Observable {
      */
     public void combat(String attackerName, String defenderName, int distance) {
         Combat.combat(units.get(attackerName.toLowerCase()), units.get(defenderName.toLowerCase()), distance);
-        units.get(attackerName.toLowerCase()).takeTurn();
         setChanged();
         notifyObservers();
     }
@@ -251,7 +251,6 @@ public class HoAModel extends Observable {
      */
     public void heal(String healerName, String recipientName) {
         Heal.heal(units.get(healerName.toLowerCase()), units.get(recipientName.toLowerCase()));
-        units.get(healerName.toLowerCase()).takeTurn();
         setChanged();
         notifyObservers();
     }
@@ -282,7 +281,6 @@ public class HoAModel extends Observable {
             recipients.add(units.get(name.toLowerCase()));
         }
         Heal.linkHeal(healer, recipients);
-        healer.takeTurn();
         setChanged();
         notifyObservers();
     }
@@ -299,7 +297,6 @@ public class HoAModel extends Observable {
             targets.add(units.get(name.toLowerCase()));
         }
         Combat.pierce(attacker, targets);
-        attacker.takeTurn();
         setChanged();
         notifyObservers();
     }
@@ -316,11 +313,20 @@ public class HoAModel extends Observable {
             targets.add(units.get(name.toLowerCase()));
         }
         Combat.multiShot(attacker, targets);
-        attacker.takeTurn();
         setChanged();
         notifyObservers();
     }
 
+    /**
+     * Strategist ability; uses strong points of surrounding allies to buff oneself before combat.
+     * For each adjacent ally, the Strategist takes their highest stat and increases his/her own by 5.
+     * For example, an adjacent ally whose highest stat is Strength will result
+     * in the Strategist's Strength increasing by 5 for the battle
+     * @param attackerName Name of the attacker; should be a Strategist
+     * @param defenderName Name of the defender
+     * @param distance Distance between attacker and defender
+     * @param adjacentNames A list of names of adjacent allies
+     */
     public void adaptability(String attackerName, String defenderName, int distance, List<String> adjacentNames) {
         Unit attacker = units.get(attackerName.toLowerCase());
         Unit defender = units.get(defenderName.toLowerCase());
@@ -329,38 +335,55 @@ public class HoAModel extends Observable {
             adjacent.add(units.get(name.toLowerCase()));
         }
         Combat.adaptability(attacker, defender, distance, adjacent);
-        attacker.takeTurn();
         setChanged();
         notifyObservers();
     }
 
+    /**
+     * Assassin ability; deals double damage (from behind, but there is currently no way to check for that)
+     * @param attackerName Name of the attacker; should be an Assassin
+     * @param defenderName Name of the defender
+     * @param distance Distance between units
+     */
     public void backstab(String attackerName, String defenderName, int distance) {
         Unit attacker = units.get(attackerName.toLowerCase());
         Unit defender = units.get(defenderName.toLowerCase());
         Combat.backstab(attacker, defender, distance);
-        attacker.takeTurn();
         setChanged();
         notifyObservers();
     }
 
-    public void supernova(String attackerName, List<String> targetNames) {
+    /**
+     * Sorcerer Fire Tome ability; deals splash damage around main target in a 9-block area.
+     * Each affected unit takes half damage
+     * @param attackerName Name of the attacker; should be a Sorcerer with Fire Tome equipped
+     * @param targetNames List of names of the targets; first target is able to retaliate
+     * @param distance Distance between the attacker and primary target
+     */
+    public void supernova(String attackerName, List<String> targetNames, int distance) {
         Unit attacker = units.get(attackerName.toLowerCase());
         List<Unit> targets = new ArrayList<>();
         for (String name : targetNames) {
             targets.add(units.get(name.toLowerCase()));
         }
-        Combat.supernova(attacker, targets);
-        attacker.takeTurn();
+        Combat.supernova(attacker, targets, distance);
         setChanged();
         notifyObservers();
     }
 
+    /**
+     * Shaman ability; uses a Tome to empower a mace strike.
+     * Increases damage by the Tome's magic stat.
+     * @param attackerName Name of the attacker; should be a Shaman with a Mace equipped
+     * @param tomeName Name of the Tome the attacker will be using to empower the mace strike
+     * @param defenderName Name of the defender
+     * @param distance Distance between attacker and defender
+     */
     public void empoweredStrike(String attackerName, String tomeName, String defenderName, int distance) {
         Unit attacker = units.get(attackerName.toLowerCase());
         Weapon tome = attacker.getInventory().get(tomeName.toLowerCase());
         Unit defender = units.get(defenderName.toLowerCase());
         Combat.empoweredStrike(attacker, tome, defender, distance);
-        attacker.takeTurn();
         setChanged();
         notifyObservers();
     }
