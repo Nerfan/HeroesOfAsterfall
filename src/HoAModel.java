@@ -20,7 +20,9 @@ public class HoAModel extends Observable {
     private enum Phase {
         PLAYER, ENEMY
     }
+    /** Tells what units are able to act: players or enemies */
     private Phase phase;
+    /** Number of turns that have passed */
     private int turncount;
     /** Path to the file where the weapons should be read from */
     private String weaponsFile;
@@ -468,6 +470,19 @@ public class HoAModel extends Observable {
             Player player = entry.getValue();
             player.setHp(player.getMaxhp());
         }
+        setChanged();
+        notifyObservers();
+    }
+
+    /**
+     * Gives a player a specified amount of gold
+     * @param playerName Name of the player to give gold to
+     * @param gold How much gold to give
+     */
+    public void giveGold(String playerName, int gold) {
+        Player player = players.get(playerName.toLowerCase());
+        player.setGold(player.getGold() + gold);
+        System.out.println(player.getName() + " has been given " + gold + " gold. Total: " + player.getGold());
         setChanged();
         notifyObservers();
     }

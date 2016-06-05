@@ -1,3 +1,7 @@
+Version 1.0
+Added shop to buy new weapons
+Added method to give players gold
+
 Beta 3.2
 Fixed a bug where every unit got the Paladin's light shield ability
 Abilities now properly check for durability

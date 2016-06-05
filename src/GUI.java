@@ -7,6 +7,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -49,7 +51,8 @@ public class GUI extends Application implements Observer {
         SUPERNOVA,
         LINKHEAL,
         ADAPTABILITY,
-        SHOP
+        SHOP,
+        GOLD
     }
     /** What is happening right now; used while drawing parts of the GUI that could be used for multiple purposes. */
     private Mode mode;
@@ -115,7 +118,17 @@ public class GUI extends Application implements Observer {
             mode = Mode.SHOP;
             drawPlayers();
         });
-        buttons.getChildren().addAll(turnCount, endTurn, save, healAll, newLevel, shop);
+        Button giveGold = new Button("Give Gold");
+        giveGold.setOnAction(e -> {
+            mode = Mode.GOLD;
+            drawPlayers();
+        });
+        buttons.getChildren().addAll(turnCount, endTurn, save, healAll, newLevel, shop, giveGold);
+        buttons.getChildren().forEach(node -> {
+            if (node instanceof Button) {
+                ((Button) node).setPrefWidth(100);
+            }
+        });
         mainBorder.setRight(buttons);
 
         return new Scene(mainBorder);
@@ -405,6 +418,9 @@ public class GUI extends Application implements Observer {
                 } else if (mode.equals(Mode.SHOP)) {
                     unit1 = player.getName();
                     drawShop();
+                } else if (mode.equals(Mode.GOLD)) {
+                    unit1 = player.getName();
+                    drawGoldInput();
                 }
             });
             button.setMaxWidth(100);
@@ -446,7 +462,7 @@ public class GUI extends Application implements Observer {
     }
 
     /**
-     * Last step before combat
+     * Last step before combat; select the range of attack (distance between attacker and defender)
      */
     private void drawRanges() {
         VBox ranges = new VBox(10);
@@ -484,6 +500,7 @@ public class GUI extends Application implements Observer {
         for (Weapon weapon : model.getWeapons().values()) {
             Button button = new Button(weapon.getName() + ": " + weapon.getCost() + " gold");
             button.setOnAction(e -> model.buy(unit1, weapon.getName()));
+            button.setPrefWidth(250);
             weaponsList.add(button, x, y);
             y++;
             if (y > 20) {
@@ -492,6 +509,40 @@ public class GUI extends Application implements Observer {
             }
         }
         mainBorder.setCenter(weaponsList);
+    }
+
+    /**
+     * Gives a field to enter how much gold should be given to a player
+     */
+    private void drawGoldInput() {
+        VBox stuff = new VBox(20);
+        Label instructions = new Label("Amount of gold to give?");
+        TextField input = new TextField();
+        input.setMaxWidth(100);
+        input.setOnKeyPressed(key -> {
+            // Accept input when the enter key is pressed
+            if (key.getCode().equals(KeyCode.ENTER)) {
+                try {
+                    int gold = Integer.parseInt(input.getText());
+                    model.giveGold(unit1, gold);
+                }
+                catch (NumberFormatException ex) {
+                    System.out.println("Input must be an integer.");
+                }
+            }
+        });
+        Button done = new Button("Done");
+        done.setOnAction(e -> {
+            try {
+                int gold = Integer.parseInt(input.getText());
+                model.giveGold(unit1, gold);
+            }
+            catch (NumberFormatException ex) {
+                System.out.println("Input must be an integer.");
+            }
+        });
+        stuff.getChildren().addAll(instructions, input, done);
+        mainBorder.setCenter(stuff);
     }
 
     /**
