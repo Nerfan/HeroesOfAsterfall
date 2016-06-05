@@ -193,6 +193,10 @@ public class Player extends Unit {
         return gold;
     }
 
+    public void setGold(int gold) {
+        this.gold = gold;
+    }
+
     public HashMap<String, Weapon> getInventory() {
         return inventory;
     }

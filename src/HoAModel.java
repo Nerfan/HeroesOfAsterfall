@@ -502,6 +502,24 @@ public class HoAModel extends Observable {
         notifyObservers();
     }
 
+    /**
+     * Uses a player's gold to buy a weapon
+     * @param playerName Name of the player purchasing a weapon
+     * @param weaponName Name of the weapon being purchased
+     */
+    public void buy(String playerName, String weaponName) {
+        Weapon weapon = new Weapon(weapons.get(weaponName.toLowerCase()));
+        Player player = players.get(playerName);
+        if (player.getGold() < weapon.getCost()) {
+            System.out.println("Not enough gold!");
+            return;
+        }
+        player.setGold(player.getGold() - weapon.getCost());
+        player.getInventory().put(weaponName.toLowerCase(), weapon);
+        setChanged();
+        notifyObservers();
+    }
+
     // Simple getters
 
     /**

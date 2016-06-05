@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -47,7 +48,8 @@ public class GUI extends Application implements Observer {
         EMPOWERED,
         SUPERNOVA,
         LINKHEAL,
-        ADAPTABILITY
+        ADAPTABILITY,
+        SHOP
     }
     /** What is happening right now; used while drawing parts of the GUI that could be used for multiple purposes. */
     private Mode mode;
@@ -108,7 +110,12 @@ public class GUI extends Application implements Observer {
         healAll.setOnAction(e -> model.healAll());
         Button newLevel = new Button("New Level");
         newLevel.setOnAction(e -> newLevel());
-        buttons.getChildren().addAll(turnCount, endTurn, save, healAll, newLevel);
+        Button shop = new Button("Shop");
+        shop.setOnAction(e -> {
+            mode = Mode.SHOP;
+            drawPlayers();
+        });
+        buttons.getChildren().addAll(turnCount, endTurn, save, healAll, newLevel, shop);
         mainBorder.setRight(buttons);
 
         return new Scene(mainBorder);
@@ -395,6 +402,9 @@ public class GUI extends Application implements Observer {
                     model.heal(unit1, player.getName());
                 } else if (mode.equals(Mode.LINKHEAL) || mode.equals(Mode.ADAPTABILITY)) {
                     multiTargets.add(player.getName());
+                } else if (mode.equals(Mode.SHOP)) {
+                    unit1 = player.getName();
+                    drawShop();
                 }
             });
             button.setMaxWidth(100);
@@ -462,6 +472,26 @@ public class GUI extends Application implements Observer {
 
         ranges.getChildren().addAll(one, two, three);
         mainBorder.setCenter(ranges);
+    }
+
+    /**
+     * Draws a list of all weapons available for purchase
+     */
+    private void drawShop() {
+        GridPane weaponsList = new GridPane();
+        int x = 0;
+        int y = 0;
+        for (Weapon weapon : model.getWeapons().values()) {
+            Button button = new Button(weapon.getName() + ": " + weapon.getCost() + " gold");
+            button.setOnAction(e -> model.buy(unit1, weapon.getName()));
+            weaponsList.add(button, x, y);
+            y++;
+            if (y > 20) {
+                y = 0;
+                x++;
+            }
+        }
+        mainBorder.setCenter(weaponsList);
     }
 
     /**
