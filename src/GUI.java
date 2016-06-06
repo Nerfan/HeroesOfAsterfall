@@ -181,7 +181,7 @@ public class GUI extends Application implements Observer {
         Player player = model.getPlayer(playerName);
         VBox display = new VBox(20);
 
-        Label name = new Label(player.getName());
+        Label name = new Label(player.getName() + "   Level " + player.getLevel() + " (" + player.getXp() + " xp)");
         name.setFont(new Font("Arial", 30));
 
         Label hp = new Label("HP: " + player.getHp() + "/" + player.getMaxhp());

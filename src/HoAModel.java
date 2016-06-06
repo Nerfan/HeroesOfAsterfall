@@ -1,6 +1,5 @@
 import Mechanics.Combat;
 import Mechanics.Heal;
-import Mechanics.LevelUp;
 import Units.Enemy;
 import Units.Player;
 import Units.Unit;
@@ -17,6 +16,7 @@ import java.util.*;
  * @author Jeremy Lefurge
  */
 public class HoAModel extends Observable {
+    /** Phases of the game; either player or enemy */
     private enum Phase {
         PLAYER, ENEMY
     }
@@ -170,7 +170,7 @@ public class HoAModel extends Observable {
             bufferedReader.close();
 
             // Initializes level up stuff
-            LevelUp.init();
+            Player.initLevelUps();
 
             // Copies enemy and player TreeMaps into a general units TreeMap
             // Uses shallow copies so all changes happen to both copies of the unit
@@ -222,12 +222,16 @@ public class HoAModel extends Observable {
 
     /**
      * Tells how many turns have passed
-     * @return the turn count
+     * @return The turn count
      */
     public int getTurnCount() {
         return this.turncount;
     }
 
+    /**
+     * Tells what phase the game is currently in
+     * @return PLAYER or ENEMY
+     */
     public Phase getPhase() {
         return this.phase;
     }
@@ -493,16 +497,14 @@ public class HoAModel extends Observable {
     public void save() {
         try {
             FileWriter saver = new FileWriter(playersFile);
-            for (Map.Entry<String, Player> entry : players.entrySet()) {
-                Player player = entry.getValue();
+            for (Player player : players.values()) {
                 saver.write(player.getName() + "\t" + player.getRole() + "\t" + player.getLevel() + "\t" +
                         player.getXp() + "\t" + player.getMaxhp() + "\t" + player.getHp() + "\t" + player.getMove() + "\t" +
                         player.getStr() + "\t" + player.getMag() + "\t" + player.getSkill() + "\t" +
                         player.getSpd() + "\t" + player.getDefense() + "\t" + player.getRes() + "\t" +
                         player.getMastery() +  "\t" + player.getGold() + "\t" +
                         player.getEquipped().getName() + "\t");
-                for (Map.Entry<String, Weapon> weaponentry : player.getInventory().entrySet()) {
-                    Weapon weapon = weaponentry.getValue();
+                for (Weapon weapon : player.getInventory().values()) {
                     saver.write(weapon.getName() + " " + weapon.getDurability() + " ");
                 }
                 saver.write(System.lineSeparator());
