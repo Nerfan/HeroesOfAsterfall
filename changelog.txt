@@ -1,3 +1,6 @@
+Version 1.0.2
+Fixed the shop
+
 Version 1.0.1
 Moved level up mechanics from its own class to a subclass of Player
 GUI now display1s a player's level and xp
