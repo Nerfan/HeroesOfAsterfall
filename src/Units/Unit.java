@@ -251,22 +251,6 @@ public abstract class Unit {
 
     public abstract HashMap<String, Weapon> getInventory();
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setMaxhp(int maxhp) {
-        this.maxhp = maxhp;
-    }
-
-    public void setHp(int hp) {
-        this.hp = hp;
-    }
-
-    public void setMove(int move) {
-        this.move = move;
-    }
-
     public void setStr(int str) {
         this.str = str;
     }
@@ -293,10 +277,6 @@ public abstract class Unit {
 
     public void setMastery(int mastery) {
         this.mastery = mastery;
-    }
-
-    public void setEquipped(Weapon equipped) {
-        this.equipped = equipped;
     }
 
     @Override

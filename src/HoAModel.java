@@ -472,7 +472,7 @@ public class HoAModel extends Observable {
     public void healAll() {
         for (Map.Entry<String, Player> entry : players.entrySet()) {
             Player player = entry.getValue();
-            player.setHp(player.getMaxhp());
+            player.heal(player.getMaxhp());
         }
         setChanged();
         notifyObservers();

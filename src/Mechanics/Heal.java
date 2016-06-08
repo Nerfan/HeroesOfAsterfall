@@ -125,7 +125,7 @@ public class Heal {
                 if (heal > (recipient.getMaxhp() - recipient.getHp())) {
                     heal = (recipient.getMaxhp() - recipient.getHp());
                 }
-                recipient.setHp(recipient.getHp() + heal);
+                recipient.heal(heal);
                 System.out.print(recipient.getName() + " was healed for " + heal + " hp by " + healer.getName() + "!");
                 System.out.println(" " + recipient.getName() + " now has " + recipient.getHp() + "/" + recipient.getMaxhp() + " hp. ");
             }

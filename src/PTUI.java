@@ -22,6 +22,7 @@ public class PTUI implements Observer {
      * Also adds self as an observer, though this doesn't really mean anything as far as functionality goes
      */
     private PTUI() {
+        System.out.println("PTUI is deprecated; please use the GUI instead");
         Scanner console = new Scanner(System.in);
 
         System.out.print("File for players? (No input defaults to data/players.txt) ");

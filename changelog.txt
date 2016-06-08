@@ -1,9 +1,15 @@
+Version 1.0.3
+When shopping, the GUI now displays how much gold a player has
+Units can no longer be targeted multiple times by the same casting of an ability
+Officially deprecated the PTUI
+Fixed a typo
+
 Version 1.0.2
 Fixed the shop
 
 Version 1.0.1
 Moved level up mechanics from its own class to a subclass of Player
-GUI now display1s a player's level and xp
+GUI now displays a player's level and xp
 
 Version 1.0
 Added shop to buy new weapons

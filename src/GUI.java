@@ -16,11 +16,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.io.*;
+import java.util.Collection;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -35,7 +36,7 @@ public class GUI extends Application implements Observer {
     /** Used to store unit names to be referenced when combat or heal are called */
     private String unit1, unit2, tome;
     /** For anything that requires more a list of units (e.g. Multi-Shot or Link Heal) */
-    private ArrayList<String> multiTargets;
+    private SetList<String> multiTargets;
     /** Distance for combat */
     private int distance;
 
@@ -63,11 +64,27 @@ public class GUI extends Application implements Observer {
     /** Tells the user whether it is player or enemy phase and what turn number it currently is */
     private Label turnCount;
 
+    /**
+     * Point of entry; simply calls Application.launch()
+     * That method then calls the init() method, then the start method.
+     * @param args Unused
+     */
+    public static void main(String[] args) {
+        Application.launch(args);
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        // Whenever anything changes in the model, we can return to the main screen (all units displayed)
+        drawMain();
+        turnCount.setText(model.getPhase() + " Phase\nTurn " + model.getTurnCount());
+    }
+
     @Override
     public void init() {
         this.model = new HoAModel("data/players.txt", "data/level1.txt", "data/weapons.txt");
         this.model.addObserver(this);
-        this.multiTargets = new ArrayList<>();
+        this.multiTargets = new SetList<>();
     }
 
     @Override
@@ -141,7 +158,7 @@ public class GUI extends Application implements Observer {
         this.unit1 = "";
         this.unit2 = "";
         this.tome = "";
-        this.multiTargets = new ArrayList<>();
+        this.multiTargets = new SetList<>();
 
         HBox units = new HBox(50);
 
@@ -358,7 +375,7 @@ public class GUI extends Application implements Observer {
      */
     private void drawEnemies() {
         VBox enemies = new VBox(20);
-        Label label = new Label("Select primary target first if selecting for a mutli-target ability.");
+        Label label = new Label("Select primary target first if selecting for a multi-target ability.");
         enemies.getChildren().add(label);
         for (Enemy enemy : model.getEnemies().values()) {
             Button button = new Button(enemy.getName());
@@ -402,7 +419,7 @@ public class GUI extends Application implements Observer {
      */
     private void drawPlayers() {
         VBox players = new VBox(20);
-        Label label = new Label("Select primary target first if selecting for a mutli-target ability.");
+        Label label = new Label("Select primary target first if selecting for a multi-target ability.");
         players.getChildren().add(label);
         for (Player player : model.getPlayers().values()) {
             Button button = new Button(player.getName());
@@ -449,16 +466,16 @@ public class GUI extends Application implements Observer {
      */
     private void drawTomeSelection(String playerName) {
         VBox tomes = new VBox(25);
-        for (Weapon weapon : model.getPlayer(playerName).getInventory().values()) {
-            if (weapon.getType().equals("Tome")) {
-                Button tome = new Button(weapon.getName());
-                tome.setOnAction(e -> {
-                    this.tome = weapon.getName();
-                    drawEnemies();
-                });
-                tomes.getChildren().add(tome);
-            }
-        }
+        model.getPlayer(playerName).getInventory().values().stream()
+                .filter(weapon -> weapon.getType().equals("Tome"))
+                .forEach(weapon -> {
+            Button tome = new Button(weapon.getName());
+            tome.setOnAction(e -> {
+                this.tome = weapon.getName();
+                drawEnemies();
+            });
+            tomes.getChildren().add(tome);
+        });
     }
 
     /**
@@ -494,6 +511,7 @@ public class GUI extends Application implements Observer {
      * Draws a list of all weapons available for purchase
      */
     private void drawShop() {
+        Label gold = new Label(model.getPlayer(unit1).getGold() + " gold available");
         GridPane weaponsList = new GridPane();
         int x = 0;
         int y = 0;
@@ -508,7 +526,7 @@ public class GUI extends Application implements Observer {
                 x++;
             }
         }
-        mainBorder.setCenter(weaponsList);
+        mainBorder.setCenter(new VBox(gold, weaponsList));
     }
 
     /**
@@ -570,32 +588,6 @@ public class GUI extends Application implements Observer {
     }
 
     /**
-     * Point of entry; simply calls Application.launch()
-     * That method then calls the init() method, then the start method.
-     * @param args Unused
-     */
-    public static void main(String[] args) {
-        Application.launch(args);
-    }
-
-    @Override
-    public void update(Observable observable, Object o) {
-        // Whenever anything changes in the model, we can return to the main screen (all units displayed)
-        drawMain();
-        turnCount.setText(model.getPhase() + " Phase\nTurn " + model.getTurnCount());
-    }
-
-    /**
-     * Utility method that redirects standard output (i.e. System.out) to a specified text area
-     * @param textArea Text Area to display standard output
-     */
-    private static void redirectConsoleTo(TextArea textArea) {
-        PrintStream ps = new PrintStream(new Console(textArea));
-        System.setOut(ps);
-        System.setErr(ps);
-    }
-
-    /**
      * Allows the user to select a new level file
      */
     private void newLevel() {
@@ -621,6 +613,41 @@ public class GUI extends Application implements Observer {
     }
 
     /**
+     * A list that only allows one of each element to be included but still maintains order of insertion
+     * @param <T>
+     */
+    private static class SetList<T> extends ArrayList<T> {
+        @Override
+        public boolean add(T t) {
+            return !super.contains(t) && super.add(t);
+        }
+
+        @Override
+        public void add(int index, T element) {
+            if (!super.contains(element)) super.add(index, element);
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends T> c) {
+            boolean added = false;
+            for (T t : c)
+                added |= add(t);
+            return added;
+        }
+
+        @Override
+        public boolean addAll(int index, Collection<? extends T> c) {
+            boolean added = false;
+            for (T t : c)
+                if (!super.contains(t)) {
+                    super.add(index++, t);
+                    added = true;
+                }
+            return added;
+        }
+    }
+
+    /**
      * Utility class used to redirect standard output
      */
     private static class Console extends OutputStream {
@@ -635,5 +662,15 @@ public class GUI extends Application implements Observer {
         public void write(int i) throws IOException {
             output.appendText(String.valueOf((char) i));
         }
+    }
+
+    /**
+     * Utility method that redirects standard output (i.e. System.out) to a specified text area
+     * @param textArea Text Area to display standard output
+     */
+    private static void redirectConsoleTo(TextArea textArea) {
+        PrintStream ps = new PrintStream(new Console(textArea));
+        System.setOut(ps);
+        System.setErr(ps);
     }
 }
