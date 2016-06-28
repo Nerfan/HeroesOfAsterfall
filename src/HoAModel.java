@@ -41,6 +41,9 @@ public class HoAModel extends Observable {
     /** All weapons stored by name */
     private TreeMap<String, Weapon> weapons;
 
+    /** Keeps track of unit locations on the grid; locations are int (x, y) form starting from the upper left */
+    private Unit[][] board;
+
     /**
      * Constructs a new model.
      * Populates all TreeMaps from files specified as parameters
@@ -61,6 +64,9 @@ public class HoAModel extends Observable {
         this.players = new TreeMap<>();
         this.units = new TreeMap<>();
         this.weapons = new TreeMap<>();
+
+        // TODO change level files to have a board included
+        this.board = new Unit[15][15];
 
         String line; // This will reference one line at a time, used for all file reading
 
@@ -183,6 +189,7 @@ public class HoAModel extends Observable {
             }
             this.phase = Phase.ENEMY;
             this.nextPhase(); // Starts the first player phase
+            this.board[0][14] = this.getPlayer("Nerfan");
         }
 
 
@@ -580,4 +587,10 @@ public class HoAModel extends Observable {
      * @return Path to players file
      */
     public String getPlayersFile() { return playersFile; }
+
+    /**
+     * Returns the grid of play
+     * @return 2D array representing the map
+     */
+    public Unit[][] getBoard() { return board; }
 }

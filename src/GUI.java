@@ -1,5 +1,6 @@
 import Units.Enemy;
 import Units.Player;
+import Units.Unit;
 import Units.Weapon;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -104,15 +105,17 @@ public class GUI extends Application implements Observer {
         // The top-most node; everything else in the GUI should go under here
         mainBorder = new BorderPane();
 
-        // Creates a TextArea that echoes standard output
+        // Left side
+        drawBoard();
+
+        // Creates a TextArea that echoes standard output; goes on the bottom
         TextArea ta = new TextArea();
         ta.setEditable(false);
         ta.setWrapText(true);
-        ta.setMaxWidth(500);
         redirectConsoleTo(ta);
         HBox temp = new HBox(ta); // Just to get proper padding on the right hand side
         temp.setPadding(new Insets(0, 20, 0, 0));
-        mainBorder.setLeft(temp);
+        mainBorder.setBottom(temp);
 
         // Center
         drawMain();
@@ -149,6 +152,36 @@ public class GUI extends Application implements Observer {
         mainBorder.setRight(buttons);
 
         return new Scene(mainBorder);
+    }
+
+    /**
+     * Draws the map to the left side of the screen
+     */
+    private void drawBoard() {
+        GridPane board = new GridPane();
+        board.setGridLinesVisible(true);
+        board.setHgap(2);
+        board.setVgap(2);
+        for (int x = 0; x < model.getBoard().length; x++) {
+            for (int y = 0; y < model.getBoard()[0].length; y++) {
+                Button button = new Button();
+                button.setMinSize(30, 30);
+                Unit unit = model.getBoard()[x][y];
+                if (unit instanceof Player) {
+                    button.setStyle("-fx-background-color: green;");
+                    button.setOnAction(e -> drawPlayer(unit.getName()));
+                    button.setText(unit.getName().substring(0, 1).toUpperCase());
+                } else if (unit instanceof Enemy) {
+                    button.setStyle("-fx-background-color: red;");
+                    button.setOnAction(e -> drawEnemy(unit.getName()));
+                } else {
+                    button.setStyle("-fx-background-color: tan;");
+                }
+                board.add(button, x, y);
+            }
+        }
+        mainBorder.setLeft(board);
+
     }
 
     /**
