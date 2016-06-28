@@ -5,3 +5,7 @@ out/
 
 # The git log doesn't need to be uploaded either
 log.txt
+
+# These are files I use for notes for myself
+Abilities.txt
+notes.txt
