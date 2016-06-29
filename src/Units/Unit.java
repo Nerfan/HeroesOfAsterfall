@@ -21,6 +21,8 @@ public abstract class Unit {
     protected Weapon equipped;
     protected boolean blinded; // For sorcerer light tome ability
     protected boolean actionable;
+    protected int xpos;
+    protected int ypos;
 
     /**
      * Constructor, all parameters are explained in subclasses
@@ -88,6 +90,31 @@ public abstract class Unit {
      */
     public boolean hasTurn() {
         return this.actionable;
+    }
+
+    /**
+     * Changes a unit's stored position; should only be called by place(), move(), and remove() in HoAModel
+     * @param xpos X position to move the unit to
+     * @param ypos Y position to move the unit to
+     */
+    public void place(int xpos, int ypos) {
+        this.xpos = xpos;
+        this.ypos = ypos;
+    }
+
+    public int getXpos() { return this.xpos; }
+
+    public int getYpos() { return this.ypos; }
+
+    /**
+     * Calculated the unit's distance from another unit
+     * @param other The other unit in question to calculate the distance from
+     * @return The distance between the two units
+     */
+    public int distanceFrom(Unit other) {
+        int xdiff = Math.abs(this.xpos-other.xpos);
+        int ydiff = Math.abs(this.ypos-other.ypos);
+        return xdiff+ydiff;
     }
 
     /**

@@ -189,7 +189,8 @@ public class HoAModel extends Observable {
             }
             this.phase = Phase.ENEMY;
             this.nextPhase(); // Starts the first player phase
-            this.board[0][14] = this.getPlayer("Nerfan");
+            this.place("Nerfan", 0, 14);
+            this.place("Berserker1", 1, 14);
         }
 
 
@@ -241,6 +242,42 @@ public class HoAModel extends Observable {
      */
     public Phase getPhase() {
         return this.phase;
+    }
+
+    public void place(String unitName, int xpos, int ypos) {
+        try {
+            Unit unit = units.get(unitName.toLowerCase());
+            this.board[xpos][ypos] = unit;
+            unit.place(xpos, ypos);
+            setChanged();
+            notifyObservers();
+        } catch(IndexOutOfBoundsException e) {
+            System.out.println("Invalid coordinates");
+        }
+    }
+
+    public void move(String unitName, int xpos, int ypos) {
+        try {
+            Unit unit = units.get(unitName.toLowerCase());
+            this.board[xpos][ypos] = unit;
+            this.board[unit.getXpos()][unit.getYpos()] = null; // TODO fix this when I change the way board spaces are handled
+            unit.place(xpos, ypos);
+            // TODO check move stat
+            setChanged();
+            notifyObservers();
+        } catch(IndexOutOfBoundsException e) {
+            System.out.println("Invalid coordinates");
+        }
+    }
+
+    // TODO move and remove
+
+    public void combat(String attackerName, String defenderName) {
+        Unit attacker = units.get(attackerName.toLowerCase());
+        Unit defender = units.get(defenderName.toLowerCase());
+        Combat.combat(attacker, defender, attacker.distanceFrom(defender));
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -471,6 +508,16 @@ public class HoAModel extends Observable {
      */
     public Enemy getEnemy(String enemyName) {
         return this.enemies.get(enemyName.toLowerCase());
+    }
+
+    /**
+     * Returns a unit by name
+     *
+     * @param unitName Name of the unit to retrieve
+     * @return The unit object from the Map
+     */
+    public Unit getUnit(String unitName) {
+        return this.units.get(unitName.toLowerCase());
     }
 
     /**

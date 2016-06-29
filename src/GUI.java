@@ -3,7 +3,10 @@ import Units.Player;
 import Units.Unit;
 import Units.Weapon;
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -21,10 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 /**
  * A GUI for the game
@@ -44,6 +44,7 @@ public class GUI extends Application implements Observer {
     // Brute force method used to tell the GUI exactly what is happening and how to interpret inputs
     /** Anything that requires more than one easy input should be a different mode (e.g. attacking or healing) */
     private enum Mode {
+        MAIN,
         ATTACK,
         HEAL,
         MULTISHOT,
@@ -64,6 +65,8 @@ public class GUI extends Application implements Observer {
     private BorderPane mainBorder;
     /** Tells the user whether it is player or enemy phase and what turn number it currently is */
     private Label turnCount;
+    /** The grid of the map */
+    private GridPane board;
 
     /**
      * Point of entry; simply calls Application.launch()
@@ -78,6 +81,8 @@ public class GUI extends Application implements Observer {
     public void update(Observable observable, Object o) {
         // Whenever anything changes in the model, we can return to the main screen (all units displayed)
         drawMain();
+        drawBoard();
+        this.mode = Mode.MAIN;
         turnCount.setText(model.getPhase() + " Phase\nTurn " + model.getTurnCount());
     }
 
@@ -86,6 +91,7 @@ public class GUI extends Application implements Observer {
         this.model = new HoAModel("data/players.txt", "data/level1.txt", "data/weapons.txt");
         this.model.addObserver(this);
         this.multiTargets = new SetList<>();
+        this.mode = Mode.MAIN;
     }
 
     @Override
@@ -158,7 +164,7 @@ public class GUI extends Application implements Observer {
      * Draws the map to the left side of the screen
      */
     private void drawBoard() {
-        GridPane board = new GridPane();
+        board = new GridPane();
         board.setGridLinesVisible(true);
         board.setHgap(2);
         board.setVgap(2);
@@ -169,11 +175,41 @@ public class GUI extends Application implements Observer {
                 Unit unit = model.getBoard()[x][y];
                 if (unit instanceof Player) {
                     button.setStyle("-fx-background-color: green;");
-                    button.setOnAction(e -> drawPlayer(unit.getName()));
+                    button.setOnAction(e -> {
+                        // Need to see if we're attacking or healing the target
+                        if (mode.equals(Mode.MAIN)) {
+                            drawPlayer(unit.getName());
+                        } else if (mode.equals(Mode.ATTACK)) {
+                            unit2 = unit.getName();
+                            model.combat(unit1, unit2);
+                        } else if (mode.equals(Mode.HEAL)) {
+                            model.heal(unit1, unit.getName());
+                        } else if (mode.equals(Mode.LINKHEAL) || mode.equals(Mode.ADAPTABILITY)) {
+                            multiTargets.add(unit.getName());
+                        } else if (mode.equals(Mode.SHOP)) {
+                            unit1 = unit.getName();
+                            drawShop();
+                        } else if (mode.equals(Mode.GOLD)) {
+                            unit1 = unit.getName();
+                            drawGoldInput();
+                        }
+                    });
                     button.setText(unit.getName().substring(0, 1).toUpperCase());
                 } else if (unit instanceof Enemy) {
                     button.setStyle("-fx-background-color: red;");
-                    button.setOnAction(e -> drawEnemy(unit.getName()));
+                    button.setOnAction(e -> {
+                        // Need to see if we're attacking or healing the target
+                        if (mode.equals(Mode.MAIN)) {
+                            drawEnemy(unit.getName());
+                        } else if (mode.equals(Mode.ATTACK) || mode.equals(Mode.BACKSTAB) || mode.equals(Mode.ADAPTABILITY)) {
+                            unit2 = unit.getName();
+                            model.combat(unit1, unit2);
+                        } else if (mode.equals(Mode.HEAL)) {
+                            model.heal(unit1, unit.getName());
+                        } else if (mode.equals(Mode.MULTISHOT) || mode.equals(Mode.PIERCE) || mode.equals(Mode.SUPERNOVA)) {
+                            multiTargets.add(unit.getName());
+                        }
+                    });
                 } else {
                     button.setStyle("-fx-background-color: tan;");
                 }
@@ -181,7 +217,35 @@ public class GUI extends Application implements Observer {
             }
         }
         mainBorder.setLeft(board);
+    }
 
+    /**
+     * Highlights actionable squares around the currently selected unit
+     */
+    private void highlightBoard(String unitName) {
+        drawBoard();
+        Unit unit = model.getUnit(unitName);
+        int xpos = unit.getXpos();
+        int ypos = unit.getYpos();
+        int move = unit.getMove();
+        for (int x = xpos-move; x <= xpos+move; x++) {
+            if (x<0) { x=0; }
+            if (x>=model.getBoard().length) { break; }
+            int spread = move-Math.abs(xpos-x);
+            for (int y = ypos-spread; y <= ypos+spread; y++) {
+                if (y<0) { y=0; }
+                if (y>=model.getBoard()[0].length) { break; }
+                if (!(model.getBoard()[x][y] instanceof Unit)) {
+                    Button button = new Button();
+                    button.setPrefSize(30, 30);
+                    button.setStyle("-fx-background-color: blue;");
+                    int finalX = x;
+                    int finalY = y;
+                    button.setOnAction(e -> model.move(unitName, finalX, finalY));
+                    board.add(button, x, y);
+                }
+            }
+        }
     }
 
     /**
@@ -349,6 +413,7 @@ public class GUI extends Application implements Observer {
             display.getChildren().add(back);
         }
         mainBorder.setCenter(display);
+        highlightBoard(playerName);
     }
 
     /**
@@ -401,6 +466,7 @@ public class GUI extends Application implements Observer {
         }
 
         mainBorder.setCenter(display);
+        highlightBoard(enemyName);
     }
 
     /**
