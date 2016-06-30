@@ -44,7 +44,6 @@ public abstract class Unit extends Tile {
         this.equipped = equipped;
         this.blinded = false;
         this.actionable = false;
-        // TODO this is temporary; should change based on the level file
         this.xpos = 0;
         this.ypos = 0;
     }

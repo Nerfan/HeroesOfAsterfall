@@ -42,7 +42,7 @@ public class HoAModel extends Observable {
     /** All weapons stored by name */
     private TreeMap<String, Weapon> weapons;
 
-    /** Keeps track of unit locations on the grid; locations are int (x, y) form starting from the upper left */
+    /** Keeps track of unit locations on the grid; locations are in (x, y) form starting from the upper left */
     private Tile[][] board;
 
     /**
@@ -203,7 +203,6 @@ public class HoAModel extends Observable {
                 String[] spaces = line.split("\\s+");
                 for (int x = 0; x < xSize; x++) {
                     switch (spaces[x]) {
-                        // TODO stuff with tiles
                         case "e":
                         case "E":
                             if (!(enemiesPlaced >= enemyNames.size())) {
@@ -344,8 +343,6 @@ public class HoAModel extends Observable {
             System.out.println(e);
         }
     }
-
-    // TODO move and remove
 
     /**
      * Default combat function; takes two units and automatically finds the distance between them on the map
