@@ -2,6 +2,7 @@ import Units.Enemy;
 import Units.Player;
 import Units.Unit;
 import Units.Weapon;
+import Map.*;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -170,53 +171,63 @@ public class GUI extends Application implements Observer {
         board.setVgap(2);
         for (int x = 0; x < model.getBoard().length; x++) {
             for (int y = 0; y < model.getBoard()[0].length; y++) {
-                Button button = new Button();
-                button.setMinSize(30, 30);
-                Unit unit = model.getBoard()[x][y];
-                if (unit instanceof Player) {
-                    button.setStyle("-fx-background-color: green;");
-                    button.setOnAction(e -> {
-                        // Need to see if we're attacking or healing the target
-                        if (mode.equals(Mode.MAIN)) {
-                            drawPlayer(unit.getName());
-                        } else if (mode.equals(Mode.ATTACK)) {
-                            unit2 = unit.getName();
-                            model.combat(unit1, unit2);
-                        } else if (mode.equals(Mode.HEAL)) {
-                            model.heal(unit1, unit.getName());
-                        } else if (mode.equals(Mode.LINKHEAL) || mode.equals(Mode.ADAPTABILITY)) {
-                            multiTargets.add(unit.getName());
-                        } else if (mode.equals(Mode.SHOP)) {
-                            unit1 = unit.getName();
-                            drawShop();
-                        } else if (mode.equals(Mode.GOLD)) {
-                            unit1 = unit.getName();
-                            drawGoldInput();
-                        }
-                    });
-                    button.setText(unit.getName().substring(0, 1).toUpperCase());
-                } else if (unit instanceof Enemy) {
-                    button.setStyle("-fx-background-color: red;");
-                    button.setOnAction(e -> {
-                        // Need to see if we're attacking or healing the target
-                        if (mode.equals(Mode.MAIN)) {
-                            drawEnemy(unit.getName());
-                        } else if (mode.equals(Mode.ATTACK) || mode.equals(Mode.BACKSTAB) || mode.equals(Mode.ADAPTABILITY)) {
-                            unit2 = unit.getName();
-                            model.combat(unit1, unit2);
-                        } else if (mode.equals(Mode.HEAL)) {
-                            model.heal(unit1, unit.getName());
-                        } else if (mode.equals(Mode.MULTISHOT) || mode.equals(Mode.PIERCE) || mode.equals(Mode.SUPERNOVA)) {
-                            multiTargets.add(unit.getName());
-                        }
-                    });
+                if (model.getBoard()[x][y] instanceof Unit) {
+                    placeUnit((Unit) model.getBoard()[x][y]);
                 } else {
-                    button.setStyle("-fx-background-color: tan;");
+                    Button button = new Button();
+                    button.setMinSize(30, 30);
+                    button.setStyle(model.getBoard()[x][y].getColor());
+                    board.add(button, x, y);
                 }
-                board.add(button, x, y);
             }
         }
         mainBorder.setLeft(board);
+    }
+
+    /**
+     * Draws all units onto the board
+     */
+    private void placeUnit(Unit unit) {
+        Button button = new Button(unit.getName().substring(0, 1)+unit.getName().substring(unit.getName().length()-1));
+        button.setMinSize(30, 30);
+        button.setFont(new Font("Arial", 10));
+        button.setStyle(unit.getColor());
+        if (unit instanceof Player) {
+            button.setOnAction(e -> {
+                // Need to see if we're attacking or healing the target
+                if (mode.equals(Mode.MAIN)) {
+                    drawPlayer(unit.getName());
+                } else if (mode.equals(Mode.ATTACK)) {
+                    unit2 = unit.getName();
+                    model.combat(unit1, unit2);
+                } else if (mode.equals(Mode.HEAL)) {
+                    model.heal(unit1, unit.getName());
+                } else if (mode.equals(Mode.LINKHEAL) || mode.equals(Mode.ADAPTABILITY)) {
+                    multiTargets.add(unit.getName());
+                } else if (mode.equals(Mode.SHOP)) {
+                    unit1 = unit.getName();
+                    drawShop();
+                } else if (mode.equals(Mode.GOLD)) {
+                    unit1 = unit.getName();
+                    drawGoldInput();
+                }
+            });
+        } else if (unit instanceof Enemy) {
+            button.setOnAction(e -> {
+                // Need to see if we're attacking or healing the target
+                if (mode.equals(Mode.MAIN)) {
+                    drawEnemy(unit.getName());
+                } else if (mode.equals(Mode.ATTACK) || mode.equals(Mode.BACKSTAB) || mode.equals(Mode.ADAPTABILITY)) {
+                    unit2 = unit.getName();
+                    model.combat(unit1, unit2);
+                } else if (mode.equals(Mode.HEAL)) {
+                    model.heal(unit1, unit.getName());
+                } else if (mode.equals(Mode.MULTISHOT) || mode.equals(Mode.PIERCE) || mode.equals(Mode.SUPERNOVA)) {
+                    multiTargets.add(unit.getName());
+                }
+            });
+        }
+        board.add(button, unit.getXpos(), unit.getYpos());
     }
 
     /**
@@ -235,7 +246,7 @@ public class GUI extends Application implements Observer {
             for (int y = ypos-spread; y <= ypos+spread; y++) {
                 if (y<0) { y=0; }
                 if (y>=model.getBoard()[0].length) { break; }
-                if (!(model.getBoard()[x][y] instanceof Unit)) {
+                if (model.getBoard()[x][y] instanceof Ground) {
                     Button button = new Button();
                     button.setPrefSize(30, 30);
                     button.setStyle("-fx-background-color: blue;");

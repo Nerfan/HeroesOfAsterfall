@@ -1,12 +1,14 @@
 package Units;
 
+import Map.Tile;
+
 import java.util.HashMap;
 
 /**
  * Gives the framework for player and enemy units. Acts as an abstract class for them to extend
  * @author Jeremy Lefurge
  */
-public abstract class Unit {
+public abstract class Unit extends Tile {
     protected String name;  // Name of unit
     protected int maxhp;    // Max hp
     protected int hp;       // Current HP
@@ -42,6 +44,9 @@ public abstract class Unit {
         this.equipped = equipped;
         this.blinded = false;
         this.actionable = false;
+        // TODO this is temporary; should change based on the level file
+        this.xpos = 0;
+        this.ypos = 0;
     }
 
     /**

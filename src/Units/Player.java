@@ -45,6 +45,7 @@ public class Player extends Unit {
         this.xp = xp;
         this.gold = gold;
         this.inventory = inventory;
+        this.color = "-fx-background-color: green;";
     }
 
     @Override

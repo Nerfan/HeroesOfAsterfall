@@ -4,6 +4,7 @@ import Units.Enemy;
 import Units.Player;
 import Units.Unit;
 import Units.Weapon;
+import Map.*;
 
 import java.io.*;
 import java.util.*;
@@ -42,7 +43,7 @@ public class HoAModel extends Observable {
     private TreeMap<String, Weapon> weapons;
 
     /** Keeps track of unit locations on the grid; locations are int (x, y) form starting from the upper left */
-    private Unit[][] board;
+    private Tile[][] board;
 
     /**
      * Constructs a new model.
@@ -64,9 +65,6 @@ public class HoAModel extends Observable {
         this.players = new TreeMap<>();
         this.units = new TreeMap<>();
         this.weapons = new TreeMap<>();
-
-        // TODO change level files to have a board included
-        this.board = new Unit[15][15];
 
         String line; // This will reference one line at a time, used for all file reading
 
@@ -96,37 +94,6 @@ public class HoAModel extends Observable {
                         )
                 );
             } // End weapon list loop
-            bufferedReader.close();
-
-
-
-/////////////////////////////////////////////// ENEMY  STUFF //////////////////////////////////////////////////////////
-            fileReader =
-                    new FileReader(enemiesFile);
-            bufferedReader =
-                    new BufferedReader(fileReader);
-
-            while ((line = bufferedReader.readLine()) != null) {    // Loops through enemy list
-                String[] list = line.split("\\s+");
-                int[] statList = new int[9];
-                for (int i = 1; i < 10; i += 1) {
-                    statList[i-1] = Integer.parseInt(list[i]);
-                }
-                this.enemies.put(list[0].toLowerCase(),
-                        new Enemy(list[0],      // Name
-                                statList[0],    // Max HP
-                                statList[0],    // HP
-                                statList[1],    // Move
-                                statList[2],    // Str
-                                statList[3],    // Mag
-                                statList[4],    // Skill
-                                statList[5],    // Spd
-                                statList[6],    // Defense
-                                statList[7],    // Res
-                                statList[8],    // Mastery
-                                new Weapon(list[10],    // Equipped weapon; initializes all stats to 0
-                                        list[10], 0, 0, 0, 0, 0)));
-            } // End enemy list loop
             bufferedReader.close();
 
 
@@ -175,8 +142,38 @@ public class HoAModel extends Observable {
             } // End player list loop
             bufferedReader.close();
 
-            // Initializes level up stuff
-            Player.initLevelUps();
+
+
+/////////////////////////////////////////////// ENEMY  STUFF //////////////////////////////////////////////////////////
+            fileReader =
+                    new FileReader(enemiesFile);
+            bufferedReader =
+                    new BufferedReader(fileReader);
+
+            while ((line = bufferedReader.readLine()) != null) {    // Loops through enemy list
+                if (line.equals("Map:")) { // Exits upon seeing that the next lines represent the map
+                    break;
+                }
+                String[] list = line.split("\\s+");
+                int[] statList = new int[9];
+                for (int i = 1; i < 10; i += 1) {
+                    statList[i-1] = Integer.parseInt(list[i]);
+                }
+                this.enemies.put(list[0].toLowerCase(),
+                        new Enemy(list[0],      // Name
+                                statList[0],    // Max HP
+                                statList[0],    // HP
+                                statList[1],    // Move
+                                statList[2],    // Str
+                                statList[3],    // Mag
+                                statList[4],    // Skill
+                                statList[5],    // Spd
+                                statList[6],    // Defense
+                                statList[7],    // Res
+                                statList[8],    // Mastery
+                                new Weapon(list[10],    // Equipped weapon; initializes all stats to 0
+                                        list[10], 0, 0, 0, 0, 0)));
+            } // End enemy list loop; don' close file because it is used for the map as well
 
             // Copies enemy and player TreeMaps into a general units TreeMap
             // Uses shallow copies so all changes happen to both copies of the unit
@@ -187,10 +184,62 @@ public class HoAModel extends Observable {
             for (Map.Entry<String, Enemy> entry : this.enemies.entrySet()) {
                 this.units.put(entry.getKey(), entry.getValue());
             }
+
+            // Create the map
+
+            String[] temp = bufferedReader.readLine().split("\\s+");
+            int xSize = Integer.parseInt(temp[0]);
+            int ySize = Integer.parseInt(temp[1]);
+            this.board = new Tile[xSize][ySize];
+
+            ArrayList<String> enemyNames = new ArrayList<>();
+            enemies.keySet().stream().forEach(e -> enemyNames.add(e));
+            ArrayList<String> playerNames = new ArrayList<>();
+            players.keySet().stream().forEach(e -> playerNames.add(e));
+            int enemiesPlaced = 0;
+            int playersPlaced = 0;
+            for (int y = 0; y < ySize; y++) {
+                line = bufferedReader.readLine();
+                String[] spaces = line.split("\\s+");
+                for (int x = 0; x < xSize; x++) {
+                    switch (spaces[x]) {
+                        // TODO stuff with tiles
+                        case "e":
+                        case "E":
+                            if (!(enemiesPlaced >= enemyNames.size())) {
+                                place(enemyNames.get(enemiesPlaced), x, y);
+                                enemiesPlaced++;
+                            } else {
+                                board[x][y] = new Ground();
+                            }
+                            break;
+                        case "p":
+                        case "P":
+                            if (!(playersPlaced >= playerNames.size())) {
+                                place(playerNames.get(playersPlaced), x, y);
+                                playersPlaced++;
+                            } else {
+                                board[x][y] = new Ground();
+                            }
+                            break;
+                        case ".":
+                            board[x][y] = new Ground();
+                            break;
+                        case "x":
+                        case "X":
+                            board[x][y] = new Impassable();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            bufferedReader.close();
+
+            // Initializes level up stuff
+            Player.initLevelUps();
             this.phase = Phase.ENEMY;
             this.nextPhase(); // Starts the first player phase
-            this.place("Nerfan", 0, 14);
-            this.place("Berserker1", 1, 14);
         }
 
 
@@ -201,10 +250,6 @@ public class HoAModel extends Observable {
         catch(IOException ex) {
             System.out.println(
                     "Error reading file.");
-        }
-        catch(Exception ex) {
-            System.out.println("Something nonspecific went wrong.");
-            System.out.println(ex);
         }
 
     }
@@ -244,7 +289,13 @@ public class HoAModel extends Observable {
         return this.phase;
     }
 
-    public void place(String unitName, int xpos, int ypos) {
+    /**
+     * Places a unit onto the map at a specified point; only called by the initialize function for now
+     * @param unitName Name of the unit to be placed
+     * @param xpos x position at which to place the unit
+     * @param ypos y position at which to place the unit
+     */
+    private void place(String unitName, int xpos, int ypos) {
         try {
             Unit unit = units.get(unitName.toLowerCase());
             this.board[xpos][ypos] = unit;
@@ -256,22 +307,52 @@ public class HoAModel extends Observable {
         }
     }
 
+    /**
+     * Moves a unit to a specified space
+     * @param unitName Name of the unit to be moved
+     * @param xpos x position to move the unit to
+     * @param ypos y position to move the unit to
+     */
     public void move(String unitName, int xpos, int ypos) {
         try {
             Unit unit = units.get(unitName.toLowerCase());
+            if ((Math.abs(unit.getXpos()-xpos)+Math.abs(unit.getYpos()-ypos)) > unit.getMove()) {
+                System.out.println("Target location not within unit's reach");
+                return;
+            }
             this.board[xpos][ypos] = unit;
-            this.board[unit.getXpos()][unit.getYpos()] = null; // TODO fix this when I change the way board spaces are handled
+            this.board[unit.getXpos()][unit.getYpos()] = new Ground();
             unit.place(xpos, ypos);
-            // TODO check move stat
             setChanged();
             notifyObservers();
         } catch(IndexOutOfBoundsException e) {
             System.out.println("Invalid coordinates");
+        }
+    }
+
+    /**
+     * Removes a unit from the map. Used when at unit dies, etc.
+     * @param unitName Name of the unit to remove
+     */
+    public void remove(String unitName) {
+        try {
+            Unit unit = getUnit(unitName);
+            this.board[unit.getXpos()][unit.getYpos()] = new Ground();
+            setChanged();
+            notifyObservers();
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
 
     // TODO move and remove
 
+    /**
+     * Default combat function; takes two units and automatically finds the distance between them on the map
+     * Then calls the combat function to have the units fight
+     * @param attackerName Name of the attacker
+     * @param defenderName Name of the defender
+     */
     public void combat(String attackerName, String defenderName) {
         Unit attacker = units.get(attackerName.toLowerCase());
         Unit defender = units.get(defenderName.toLowerCase());
@@ -281,7 +362,7 @@ public class HoAModel extends Observable {
     }
 
     /**
-     * Calls for combat between two units
+     * Manual case for combat, specify what the range is; used in the deprecated PTUI and older versions of the GUI
      *
      * @param attackerName Name of the attacker
      * @param defenderName Name of the defender
@@ -639,5 +720,5 @@ public class HoAModel extends Observable {
      * Returns the grid of play
      * @return 2D array representing the map
      */
-    public Unit[][] getBoard() { return board; }
+    public Tile[][] getBoard() { return board; }
 }

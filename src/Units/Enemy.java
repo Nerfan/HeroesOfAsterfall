@@ -26,6 +26,7 @@ public class Enemy extends Unit {
                  int maxhp, int hp, int move, int str, int mag, int skill, int spd, int defense, int res, int mastery,
                  Weapon equipped) {
         super(name, maxhp, hp, move, str, mag, skill, spd, defense, res, mastery, equipped);
+        this.color = "-fx-background-color: red;";
     }
 
     @Override
